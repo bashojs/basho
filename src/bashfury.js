@@ -7,45 +7,53 @@ function isFilename(path) {
     -p print
     -e shell command
     -f filter
+    -i Use a named export
     -r1 First param of reduce (a function)
     -r2 Second param of reduce (initial value of accumulator)
     -a Treat array as a whole
 */
 
-async function parse(args, input, option) {
-  return args.length
-    ? args[0] === "-e"
-      ? parse(args.slice(1), input, true)
-      : option === "e"
-        ? 1
-        : isFilename(args[0])
-          ? await (async () => {
-              const evalText = isFilename ? `require(${args[0]}` : 1;
-              const res = eval(`require(${args[0]}`);
-              return typeof res === "function"
-                ? parse(args.slice(1), await res(input))
-                : parse(args.slice(1), res);
-            })()
-          : (() => {
-              const cmd = args[0];
-              return isShellCommand
-                ? (() => {
-                    const result = eval(cmd);
-                  })()
-                : (() => {})();
-            })()
-    : 1;
-  return parse();
+class ArrayParam {
+  constructor(array) {
+    this.array = array;
+  }
+}
+
+async function parse(args, input, mustPrint = false) {
+  const cases = [
+    [
+      x => x === "-e",
+      async () => parse(args.slice(2), await exec(args[1], input), mustPrint)
+    ],
+    [x => x === "-p", () => parse(args.slice(1), input, true)],
+    [
+      x => x === "-i",
+      async () =>
+        parse(
+          args.slice[3],
+          await evalNamedFunction(args[1], args[2], input),
+          mustPrint
+        )
+    ],
+    [
+      x => x === "-a",
+      () => parse(args.slice(1), new ArrayParam(input), mustPrint)
+    ],
+    [
+      x => x === "-f",
+      () => parse(args.slice(2), filter(args[1], input, mustPrint))
+    ],
+    [
+      x => x === "-r",
+      () => parse(args.slice(2), reduce(args[1], input, mustPrint))
+    ],
+    [
+      x => isFilename(x),
+      async () => parse(args.slice(1), await evalDefaultExport(input), mustPrint)
+    ]
+  ];
+
+  return 
 }
 
 parse(process.argv);
-
-// each array item is [org, project, isActive]
-export default [
-  ["jeswin", "bitfury", true],
-  ["jeswin", "lazily", true],
-  ["jeswin", "lazily-async", false],
-  ["bigyak", "wild-yak", true],
-  ["bigyak", "paddock", true],
-  ["bigyak", "yakety-yak", false]
-];
