@@ -1,0 +1,22 @@
+{
+  "name": "bashfury",
+  "version": "0.0.1",
+  "author": "Isotropy Team<isotropy@agilehead.com>",
+  "contributors": ["Jeswin Kumar<jeswinpk@agilehead.com>"],
+  "scripts": {
+    "build": "./build.sh",
+    "test": "mocha dist/test/test.js",
+    "debug": "mocha dist/test/test.js --debug-brk"
+  },
+  "main": "dist/bashfury.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-core": "^6.22.1",
+    "babel-preset-modern-browsers": "^10.0.1",
+    "babel-preset-stage-3": "^6.24.1",
+    "mocha": "*",
+    "should": "*",
+    "source-map-support": "^0.4.8"
+  },
+  "license": "MIT"
+}

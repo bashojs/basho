@@ -1,0 +1,4 @@
+{
+  "sourceMaps": true,
+  "presets": ["modern-browsers", "stage-3"]
+}
