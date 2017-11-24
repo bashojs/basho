@@ -33,10 +33,10 @@ async function shellCmd(template, inputPromise) {
   const fn = eval(`x => \`${template}\``);
   const outputs =
     input instanceof ArrayParam
-      ? [await exec(fn(input.array))]
+      ? [await exec(fn(await input.array))]
       : !Array.isArray(input)
-        ? [await exec(fn(input))]
-        : await Promise.all(input.map(i => exec(fn(i))));
+        ? [await exec(fn(await input))]
+        : await Promise.all((await Promise.all(input)).map(i => exec(fn(i))));
   const flattened = [].concat.apply([], outputs.map(i => i.split("\n")));
   const items = flattened.filter(x => x !== "").map(x => x.replace(/\n$/, ""));
   return items.length === 1 ? items[0] : items;
@@ -52,32 +52,30 @@ async function evalNamedFunction(filename, exportName, inputPromise) {
   return typeof item !== "function"
     ? item
     : input instanceof ArrayParam
-      ? await item(input.array)
-      : !Array.isArray(input)
-        ? await item(input)
-        : input.map((x, i) => item(x, i));
+      ? await item(await input.array)
+      : Array.isArray(input)
+        ? await Promise.all(
+            (await Promise.all(input)).map((x, i) => item(x, i))
+          )
+        : await item(await input);
 }
 
 async function filter(exp, inputPromise) {
   const input = await inputPromise;
   const code = `(x, i) => (${exp})`;
   const fn = eval(code);
-  return input instanceof ArrayParam
-    ? await fn(input.array)
-    : Array.isArray(input)
-      ? input.filter((x, i) => fn(x, i))
-      : exception(`${input} is not an Array.`);
+  return Array.isArray(input)
+    ? await Promise.all(input.filter((x, i) => fn(x, i)))
+    : exception(`${input} is not an Array.`);
 }
 
 async function reduce(exp, initialValue, inputPromise) {
   const input = await inputPromise;
   const code = `(acc, x, i) => (${exp})`;
   const fn = eval(code);
-  return input instanceof ArrayParam
-    ? await fn(input.array)
-    : Array.isArray(input)
-      ? input.reduce((x, i) => fn(x, i), eval(initialValue))
-      : exception(`${input} is not an Array.`);
+  return Array.isArray(input)
+    ? input.reduce((x, i) => fn(x, i), eval(initialValue))
+    : exception(`${input} is not an Array.`);
 }
 
 async function evalDefaultExport(filename, input) {
