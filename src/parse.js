@@ -31,15 +31,24 @@ class ArrayParam {
 async function shellCmd(template, inputPromise) {
   const input = await inputPromise;
   const fn = eval(`x => \`${template}\``);
-  const cmd = fn(input);
-  const stdout = await exec(cmd);
-  const items = stdout.split("\n").filter(x => x !== "");
+  const outputs =
+    input instanceof ArrayParam
+      ? [await exec(fn(input.array))]
+      : !Array.isArray(input)
+        ? [await exec(fn(input))]
+        : await Promise.all(input.map(i => exec(fn(i))));
+  const flattened = [].concat.apply([], outputs.map(i => i.split("\n")));
+  const items = flattened.filter(x => x !== "").map(x => x.replace(/\n$/, ""));
   return items.length === 1 ? items[0] : items;
 }
 
 async function evalNamedFunction(filename, exportName, inputPromise) {
   const input = await inputPromise;
-  const item = require(path.join(process.cwd(), filename))[exportName];
+  const module = require(path.join(process.cwd(), filename));
+  const item =
+    exportName === "default"
+      ? typeof module === "function" ? module : module.default
+      : module[exportName];
   return typeof item !== "function"
     ? item
     : input instanceof ArrayParam

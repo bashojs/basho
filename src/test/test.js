@@ -21,6 +21,16 @@ describe("bashfury", () => {
     result.should.deepEqual({ mustPrint: false, result: [1, 2, 3, 4] });
   });
 
+  it(`Evals an object`, async () => {
+    const result = await parse(["{ name: 'kai' }"]);
+    result.should.deepEqual({ mustPrint: false, result: { name: "kai" } });
+  });
+
+  it(`Evals an array of objects`, async () => {
+    const result = await parse(["[{ name: 'kai' }, { name: 'niki' }]"]);
+    result.should.deepEqual({ mustPrint: false, result: [{ name: "kai" }, { name: "niki" }] });
+  });
+
   it(`Sets the mustPrint flag`, async () => {
     const result = await parse(["-p", "[1,2,3,4]"]);
     result.should.deepEqual({ mustPrint: true, result: [1, 2, 3, 4] });
@@ -51,6 +61,11 @@ describe("bashfury", () => {
     result.should.deepEqual({ mustPrint: false, result: 100 });
   });
 
+  it(`Calls a function exported with module.exports`, async () => {
+    const result = await parse(["10", "./dist/test/square-node.js"]);
+    result.should.deepEqual({ mustPrint: false, result: 100 });
+  });
+
   it(`Calls a named export from an external file`, async () => {
     const result = await parse([
       "10",
@@ -61,19 +76,44 @@ describe("bashfury", () => {
     result.should.deepEqual({ mustPrint: false, result: 100 });
   });
 
-  it(`Calls a bash command`, async () => {
-    const result = await parse(["10", "x**2", "-e", "echo ${x}"]);
-    result.should.deepEqual({ mustPrint: false, result: "100" });
+  it(`Calls a shell command`, async () => {
+    const result = await parse(["10", "-e", "echo ${x}"]);
+    result.should.deepEqual({ mustPrint: false, result: "10" });
   });
 
-  it(`Can extend the pipeline beyond the bash command`, async () => {
-    const result = await parse([
-      "10",
-      "x**2",
-      "-e",
-      "echo ${x}",
-      "`The answer is ${x}`"
-    ]);
-    result.should.deepEqual({ mustPrint: false, result: "The answer is 100" });
+  it(`Passes an object to a shell command`, async () => {
+    const result = await parse(["{ name: 'kai' }", "-e", "echo ${x.name}"]);
+    result.should.deepEqual({ mustPrint: false, result: "kai" });
+  });
+
+  it(`Calls a shell command which outputs multiple lines`, async () => {
+    const result = await parse(["10", "-e", "echo ${x};echo ${x};"]);
+    result.should.deepEqual({ mustPrint: false, result: ["10", "10"] });
+  });
+
+  it(`Calls a shell command which outputs newlines`, async () => {
+    const result = await parse(["10", "-e", 'echo "${x}\n${x}"']);
+    result.should.deepEqual({ mustPrint: false, result: ["10", "10"] });
+  });
+
+  it(`Passes an array to a shell command`, async () => {
+    const result = await parse(["[10, 11, 12]", "-e", "echo N${x}"]);
+    result.should.deepEqual({
+      mustPrint: false,
+      result: ["N10", "N11", "N12"]
+    });
+  });
+
+  it(`Passes the output of the shell command output to the next expression`, async () => {
+    const result = await parse(["-e", "echo 10", "`The answer is ${x}`"]);
+    result.should.deepEqual({ mustPrint: false, result: "The answer is 10" });
+  });
+
+  it(`Passes multiline output of the shell command output to the next expression`, async () => {
+    const result = await parse(["-e", 'echo "10\n10"', "`The answer is ${x}`"]);
+    result.should.deepEqual({
+      mustPrint: false,
+      result: ["The answer is 10", "The answer is 10"]
+    });
   });
 });

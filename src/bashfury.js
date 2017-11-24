@@ -1,3 +1,23 @@
-import parse from "./parse";
+#!/usr/bin/env node
 
-parse(process.argv);
+import parse from "./parse";
+import getStdin from "get-stdin";
+
+getStdin()
+  .then(async str => {
+    const output = await parse(
+      process.argv.slice(2),
+      str.replace(/\n$/, "").split("\n")
+    );
+    if (output.mustPrint) {
+      if (Array.isArray(output.result)) {
+        output.result.forEach(i => console.log(i));
+      } else {
+        console.log(output.result);
+      }
+    }
+  })
+  .catch(error => {
+    console.error(error.message);
+    process.exit(1);
+  });

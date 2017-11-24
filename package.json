@@ -1,17 +1,19 @@
 {
   "name": "bashfury",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "author": "Isotropy Team<isotropy@agilehead.com>",
-  "contributors": [
-    "Jeswin Kumar<jeswinpk@agilehead.com>"
-  ],
+  "contributors": ["Jeswin Kumar<jeswinpk@agilehead.com>"],
   "scripts": {
     "build": "./build.sh",
     "test": "mocha dist/test/test.js",
     "debug": "mocha dist/test/test.js --debug-brk"
   },
+  "bin": {
+    "bashfury": "dist/bashfury.js"
+  },
   "main": "dist/bashfury.js",
   "dependencies": {
+    "get-stdin": "^5.0.1",
     "nodefunc-promisify": "^2.0.2"
   },
   "devDependencies": {
