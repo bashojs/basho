@@ -74,7 +74,7 @@ async function reduce(exp, initialValue, inputPromise) {
   const code = `(acc, x, i) => (${exp})`;
   const fn = eval(code);
   return Array.isArray(input)
-    ? input.reduce((x, i) => fn(x, i), eval(initialValue))
+    ? await Promise.all((await Promise.all(input)).reduce((x, i) => fn(x, i), eval(initialValue)))
     : exception(`${input} is not an Array.`);
 }
 
@@ -87,8 +87,8 @@ async function evalExpression(exp, inputPromise) {
   const code = `(x, i) => (${exp})`;
   const fn = eval(code);
   return input instanceof ArrayParam
-    ? await fn(input.array)
-    : !Array.isArray(input) ? await fn(input) : input.map((x, i) => fn(x, i));
+    ? await fn(await input.array)
+    : Array.isArray(input) ? input.map((x, i) => fn(x, i)); : await fn(input) 
 }
 
 export default async function parse(args, input, mustPrint = false) {
