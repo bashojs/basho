@@ -16,6 +16,7 @@ getStdin()
         console.log(output.result);
       }
     }
+    process.exit(0);
   })
   .catch(error => {
     console.error(error.message);

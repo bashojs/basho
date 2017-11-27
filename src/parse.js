@@ -8,11 +8,12 @@ const exec = promisify(child_process.exec);
 /*
   Options:
     -p print
+    -j JS expression
     -e shell command
-    -i Use a named export
     -f filter
     -r reduce
     -a Treat array as a whole
+    -i Use a named export
 */
 
 function isFilename(path) {
@@ -28,22 +29,38 @@ class ArrayParam {
   }
 }
 
+async function withInput(
+  inputPromise,
+  ifSingleItem,
+  ifArray,
+  outputArray = false
+) {
+  const _input = await inputPromise;
+  const input = _input instanceof ArrayParam ? _input.array : _input;
+
+  return _input instanceof ArrayParam || !Array.isArray(_input)
+    ? outputArray
+      ? [await ifSingleItem(await input)]
+      : await ifSingleItem(await input)
+    : await Promise.all(
+        (await Promise.all(input)).map((x, i) => ifArray(x, i))
+      );
+}
+
 async function shellCmd(template, inputPromise) {
-  const input = await inputPromise;
   const fn = eval(`x => \`${template}\``);
-  const outputs =
-    input instanceof ArrayParam
-      ? [await exec(fn(await input.array))]
-      : !Array.isArray(input)
-        ? [await exec(fn(await input))]
-        : await Promise.all((await Promise.all(input)).map(i => exec(fn(i))));
+  const outputs = await withInput(
+    inputPromise,
+    async x => await exec(fn(x), { stdio: "inherit" }),
+    async x => await exec(fn(x), { stdio: "inherit" }),
+    true
+  );
   const flattened = [].concat.apply([], outputs.map(i => i.split("\n")));
   const items = flattened.filter(x => x !== "").map(x => x.replace(/\n$/, ""));
   return items.length === 1 ? items[0] : items;
 }
 
 async function evalNamedFunction(filename, exportName, inputPromise) {
-  const input = await inputPromise;
   const module = require(path.join(process.cwd(), filename));
   const item =
     exportName === "default"
@@ -51,13 +68,7 @@ async function evalNamedFunction(filename, exportName, inputPromise) {
       : module[exportName];
   return typeof item !== "function"
     ? item
-    : input instanceof ArrayParam
-      ? await item(await input.array)
-      : Array.isArray(input)
-        ? await Promise.all(
-            (await Promise.all(input)).map((x, i) => item(x, i))
-          )
-        : await item(await input);
+    : await withInput(inputPromise, x => item(x), (x, i) => item(x, i));
 }
 
 async function filter(exp, inputPromise) {
@@ -65,7 +76,7 @@ async function filter(exp, inputPromise) {
   const code = `(x, i) => (${exp})`;
   const fn = eval(code);
   return Array.isArray(input)
-    ? await Promise.all(input.filter((x, i) => fn(x, i)))
+    ? (await Promise.all(input)).filter((x, i) => fn(x, i))
     : exception(`${input} is not an Array.`);
 }
 
@@ -74,7 +85,10 @@ async function reduce(exp, initialValue, inputPromise) {
   const code = `(acc, x, i) => (${exp})`;
   const fn = eval(code);
   return Array.isArray(input)
-    ? await Promise.all((await Promise.all(input)).reduce((x, i) => fn(x, i), eval(initialValue)))
+    ? (await Promise.all(input)).reduce(
+        (acc, x, i) => fn(acc, x, i),
+        eval(initialValue)
+      )
     : exception(`${input} is not an Array.`);
 }
 
@@ -83,12 +97,20 @@ async function evalDefaultExport(filename, input) {
 }
 
 async function evalExpression(exp, inputPromise) {
-  const input = await inputPromise;
   const code = `(x, i) => (${exp})`;
   const fn = eval(code);
-  return input instanceof ArrayParam
-    ? await fn(await input.array)
-    : Array.isArray(input) ? input.map((x, i) => fn(x, i)); : await fn(input) 
+  return await withInput(inputPromise, x => fn(x), (x, i) => fn(x, i));
+}
+
+function munch(parts, expression = [], cursor = 0) {
+  return !parts.length ||
+    ["-p", "-j", "-e", "-f", "-r", "-a", "-i"].includes(parts[0])
+    ? { cursor, expression }
+    : munch(parts.slice(1), expression.concat(parts[0]), cursor + 1);
+}
+
+function toExpressionString(args) {
+  return args.join("");
 }
 
 export default async function parse(args, input, mustPrint = false) {
@@ -96,11 +118,19 @@ export default async function parse(args, input, mustPrint = false) {
     /* Execute shell command */
     [
       x => x === "-e",
-      async () =>
-        parse(args.slice(2), await shellCmd(args[1], input), mustPrint)
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        return parse(
+          args.slice(cursor + 1),
+          await shellCmd(toExpressionString(expression), input),
+          mustPrint
+        );
+      }
     ],
+
     /* Print */
     [x => x === "-p", () => parse(args.slice(1), input, true)],
+
     /* Named Export */
     [
       x => x === "-i",
@@ -111,33 +141,78 @@ export default async function parse(args, input, mustPrint = false) {
           mustPrint
         )
     ],
+
     /* Treat input as a whole array */
     [
       x => x === "-a",
       () => parse(args.slice(1), new ArrayParam(input), mustPrint)
     ],
+
     /* Filter */
     [
       x => x === "-f",
-      async () => parse(args.slice(2), await filter(args[1], input, mustPrint))
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        return parse(
+          args.slice(cursor + 1),
+          await filter(toExpressionString(expression), input, mustPrint)
+        );
+      }
     ],
+
     /* Reduce */
     [
       x => x === "-r",
-      async () =>
-        parse(args.slice(3), await reduce(args[1], args[2], input, mustPrint))
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        const initialValue = expression.slice(-1)[0];
+        return parse(
+          args.slice(cursor + 1),
+          await reduce(
+            toExpressionString(expression.slice(0, -1)),
+            initialValue,
+            input,
+            mustPrint
+          )
+        );
+      }
     ],
+
     /* Is a file */
     [
       x => isFilename(x),
       async () =>
         parse(args.slice(1), await evalDefaultExport(args[0], input), mustPrint)
     ],
+
+    /* Everything else */
+    [
+      x => x === "-j",
+      async () => {
+        return isFilename(args[1])
+          ? parse(args.slice(2), await evalDefaultExport(args[1], input), mustPrint)
+          : (async () => {
+            const { cursor, expression } = munch(args.slice(1));
+            return parse(
+              args.slice(cursor + 1),
+              await evalExpression(toExpressionString(expression), input),
+              mustPrint
+            );    
+          })()
+      }
+    ],
+
     /* Everything else */
     [
       x => true,
-      async () =>
-        parse(args.slice(1), await evalExpression(args[0], input), mustPrint)
+      async () => {
+        const { cursor, expression } = munch(args);
+        return parse(
+          args.slice(cursor),
+          await evalExpression(toExpressionString(expression), input),
+          mustPrint
+        );
+      }
     ]
   ];
 

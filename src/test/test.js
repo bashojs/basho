@@ -1,9 +1,27 @@
 import should from "should";
-import * as babel from "babel-core";
+import child_process from "child_process";
+import promisify from "nodefunc-promisify";
 import sourceMapSupport from "source-map-support";
 import parse from "../parse";
+import path from "path";
+import { log } from "util";
 
 sourceMapSupport.install();
+
+function execute(cmd) {
+  return new Promise((resolve, reject) => {
+    const child = child_process.exec(
+      cmd,
+      { stdio: "inherit" },
+      (err, result) => {
+        resolve(result);
+      }
+    );
+    child.stdin.end();
+  });
+}
+
+const bashfury = `node ${path.resolve("./dist/bashfury.js")}`;
 
 describe("bashfury", () => {
   it(`Evals a constant`, async () => {
@@ -28,7 +46,10 @@ describe("bashfury", () => {
 
   it(`Evals an array of objects`, async () => {
     const result = await parse(["[{ name: 'kai' }, { name: 'niki' }]"]);
-    result.should.deepEqual({ mustPrint: false, result: [{ name: "kai" }, { name: "niki" }] });
+    result.should.deepEqual({
+      mustPrint: false,
+      result: [{ name: "kai" }, { name: "niki" }]
+    });
   });
 
   it(`Sets the mustPrint flag`, async () => {
@@ -37,7 +58,7 @@ describe("bashfury", () => {
   });
 
   it(`Pipes a result into the next expression`, async () => {
-    const result = await parse(["[1,2,3,4]", "x**2"]);
+    const result = await parse(["[1,2,3,4]", "-j", "x**2"]);
     result.should.deepEqual({ mustPrint: false, result: [1, 4, 9, 16] });
   });
 
@@ -57,12 +78,12 @@ describe("bashfury", () => {
   });
 
   it(`Calls a function in an external file`, async () => {
-    const result = await parse(["10", "./dist/test/square.js"]);
+    const result = await parse(["10", "-j", "./dist/test/square.js"]);
     result.should.deepEqual({ mustPrint: false, result: 100 });
   });
 
   it(`Calls a function exported with module.exports`, async () => {
-    const result = await parse(["10", "./dist/test/square-node.js"]);
+    const result = await parse(["10", "-j", "./dist/test/square-node.js"]);
     result.should.deepEqual({ mustPrint: false, result: 100 });
   });
 
@@ -105,15 +126,30 @@ describe("bashfury", () => {
   });
 
   it(`Passes the output of the shell command output to the next expression`, async () => {
-    const result = await parse(["-e", "echo 10", "`The answer is ${x}`"]);
+    const result = await parse(["-e", "echo 10", "-j", "`The answer is ${x}`"]);
     result.should.deepEqual({ mustPrint: false, result: "The answer is 10" });
   });
 
   it(`Passes multiline output of the shell command output to the next expression`, async () => {
-    const result = await parse(["-e", 'echo "10\n10"', "`The answer is ${x}`"]);
+    const result = await parse(["-e", 'echo "10\n10"', "-j", "`The answer is ${x}`"]);
     result.should.deepEqual({
       mustPrint: false,
       result: ["The answer is 10", "The answer is 10"]
     });
+  });
+
+  it(`Prints a numeric value (bash)`, async () => {
+    const result = await execute(`${bashfury} -p 10`);
+    result.should.equal("10\n");
+  });
+
+  it(`Prints a string value (bash)`, async () => {
+    const result = await execute(`${bashfury} -p "'hello, world'"`);
+    result.should.equal("hello, world\n");
+  });
+
+  it(`Prints a string via shell echo (bash)`, async () => {
+    const result = await execute(`${bashfury} -p 10 -e 'echo \${x}'`);
+    result.should.equal("10\n");
   });
 });
