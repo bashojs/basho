@@ -40,9 +40,9 @@ to use it, but it's there.
 basho -p 100
 ```
 
-Working with strings is a little difficult. Since bash with chew the quotes for
-itself. So you’d need to either use single quotes around your double quotes, or
-just use the -q option for quoting.
+Working with strings is a little difficult. Since bash will chew the quotes for
+itself, you’d need to either use single quotes around your double quotes. So we
+made a shorthand for this, the -q option.
 
 ```bash
 # Prints hello, world
@@ -93,16 +93,15 @@ basho can receive input via stdin. As always, ‘x’ represents the input.
 echo 10 | basho parseInt(x)**2
 ```
 
-If the input ‘x’ to a shell command is an array, the command is executed for
-each item in the array.
+If the input to an expression is an array, the subsequent expression or command
+is executed for each item in the array.
 
 ```bash
 # echo 1; echo 2; echo 3; echo 4
 basho [1,2,3,4] -e echo \${x}
 ```
 
-The input ‘x’ can also be an object, which you can expand in the template
-string.
+An input can also be an object, which you can expand in the template string.
 
 ```bash
 basho "{ name: 'jes', age: 100 }" -e echo \${x.name}, \${x.age}
@@ -167,7 +166,7 @@ basho "['a','b','c']" -e echo \${x}\${i}
 ```
 
 You can extend the pipeline further after a shell command. The shell command’s
-stdout becomes the input for the next command.
+output becomes the input for the next command.
 
 ```bash
 # echo 110 - which is (10^2) + 10
@@ -179,7 +178,7 @@ shell.
 
 ```bash
 # Prints 100
-basho 10 "x**2" | echo
+basho 10 x**2 | echo
 ```
 
 Promises! If an JS expression evaluates to a promise, it is resolved before
@@ -210,5 +209,5 @@ Count the number of occurences of a word in a string or file.
 echo hello world hello hello | basho "(x.match(/hello/g) || []).length"```
 ````
 
-That’s all guys. [Report issues](https://www.github.com/jeswin/basho) or ping me
+That’s all folks. [Report issues](https://www.github.com/jeswin/basho) or ping me
 on [Twitter](https://www.twitter.com/jeswin).
