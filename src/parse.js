@@ -123,7 +123,7 @@ function toExpressionString(args) {
     : args.join(" ");
 }
 
-export default async function parse(args, input, mustPrint = false) {
+export default async function parse(args, input, mustPrint = true) {
   const cases = [
     /* Execute shell command */
     [
@@ -139,7 +139,7 @@ export default async function parse(args, input, mustPrint = false) {
     ],
 
     /* Print */
-    [x => x === "-p", () => parse(args.slice(1), input, true)],
+    [x => x === "-p", () => parse(args.slice(1), input, false)],
 
     /* Named Export */
     [
