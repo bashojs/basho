@@ -1,6 +1,6 @@
 {
-  "name": "bashfury",
-  "version": "0.0.3",
+  "name": "basho",
+  "version": "0.0.1",
   "author": "Isotropy Team<isotropy@agilehead.com>",
   "contributors": ["Jeswin Kumar<jeswinpk@agilehead.com>"],
   "scripts": {
@@ -9,9 +9,9 @@
     "debug": "mocha dist/test/test.js --debug-brk"
   },
   "bin": {
-    "bashfury": "dist/bashfury.js"
+    "basho": "dist/basho.js"
   },
-  "main": "dist/bashfury.js",
+  "main": "dist/basho.js",
   "dependencies": {
     "get-stdin": "^5.0.1",
     "nodefunc-promisify": "^2.0.2"
