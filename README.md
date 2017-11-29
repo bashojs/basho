@@ -201,6 +201,19 @@ sad.
 basho
 ```
 
+### Tip
+
+If you need fetch very often, you’re better off creating in alias for basho in
+.bashrc or wherver.
+
+```bash
+# in .bashrc
+alias basho='basho -i node-fetch fetch'
+
+# now you could just do
+basho "fetch('example.com/weather')" -j x.temperature
+```
+
 ## Real world use-cases
 
 Count the number of occurences of a word in a string or file.
@@ -209,5 +222,11 @@ Count the number of occurences of a word in a string or file.
 echo hello world hello hello | basho "(x.match(/hello/g) || []).length"```
 ````
 
-That’s all folks. [Report issues](https://www.github.com/jeswin/basho) or ping me
-on [Twitter](https://www.twitter.com/jeswin).
+Get the weather in bangalore
+
+```bash
+echo Bangalore,in | basho "fetch(\`http://api.openweathermap.org/data/2.5/weather?q=\${x}&appid=YOURAPIKEY&units=metric\`)" -j "x.json()" -j x.main.temp
+```
+
+That’s all folks. [Report issues](https://www.github.com/jeswin/basho) or ping
+me on [Twitter](https://www.twitter.com/jeswin).

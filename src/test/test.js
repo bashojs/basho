@@ -35,6 +35,11 @@ describe("basho", () => {
     result.should.deepEqual({ mustPrint: true, result: "hello, world" });
   });
 
+  it(`Evals a template string`, async () => {
+    const result = await parse(["10", "-j", "`number:${x}`"]);
+    result.should.deepEqual({ mustPrint: true, result: "number:10" });
+  });
+
   it(`Quotes a string`, async () => {
     const result = await parse(["-q", "hello, world"]);
     result.should.deepEqual({ mustPrint: true, result: "hello, world" });
@@ -178,6 +183,11 @@ describe("basho", () => {
   it(`Prints a boolean (shell)`, async () => {
     const result = await execute(`${basho} -j true`);
     result.should.equal("true\n");
+  });
+
+  it(`Evals a template string (shell)`, async () => {
+    const result = await execute(`${basho} 10 -j \\\`number:\\\${x}\\\``);
+    result.should.equal("number:10\n");
   });
 
   it(`Works with an array (shell)`, async () => {
