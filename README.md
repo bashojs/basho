@@ -214,7 +214,7 @@ alias basho='basho -i node-fetch fetch'
 basho "fetch('example.com/weather')" -j x.temperature
 ```
 
-## Real world use-cases
+## Real world examples
 
 Count the number of occurences of a word in a string or file.
 
