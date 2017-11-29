@@ -203,8 +203,8 @@ basho
 
 ### Tip
 
-If you need fetch very often, you’re better off creating in alias for basho in
-.bashrc or wherver.
+If you need the fetch module (or any other) often, you’re better off creating an alias for basho in
+.bashrc (or .bash_profile on a Mac).
 
 ```bash
 # in .bashrc
