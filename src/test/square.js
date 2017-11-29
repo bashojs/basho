@@ -1,7 +1,3 @@
-export function squareAlias(n) {
-  return n ** 2;
-}
-
-export default function square(n) {
+module.exports = function square(n) {
   return n ** 2;
 }

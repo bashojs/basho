@@ -12,6 +12,7 @@
   },
   "main": "dist/bashfury.js",
   "dependencies": {
+    "get-stdin": "^5.0.1",
     "nodefunc-promisify": "^2.0.2"
   },
   "devDependencies": {
