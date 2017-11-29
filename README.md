@@ -1,5 +1,11 @@
 # Basho: Shell macros with the goodness of JavaScript templates
 
+Installation
+
+```bash
+npm install -g basho
+```
+
 Basho evaluates a pipeline of instructions left to right. Instructions can be
 JavaScript code, reference to an external JS file, or a shell command. To
 evaluate a JavaScript expression, use the option -j. Let’s start with a single
