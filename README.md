@@ -1,4 +1,4 @@
-# Basho: Shell pipelines with the goodness of JS templates
+# Basho: Shell macros with the goodness of JavaScript templates
 
 Basho evaluates a pipeline of instructions left to right. Instructions can be
 JavaScript code, reference to an external JS file, or a shell command. To
