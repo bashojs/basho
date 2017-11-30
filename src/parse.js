@@ -49,9 +49,18 @@ async function withInput(
       ? outputArray
         ? [await ifSingleItem(await input)]
         : await ifSingleItem(await input)
-      : await Promise.all(
-          (await Promise.all(input)).map((x, i) => ifArray(x, i))
-        );
+      : input.length
+        ? await (async function loop(inputs, counter = 0, acc = []) {
+            return inputs.length
+              ? await (async () => {
+                  const [first, ...rest] = inputs;
+                  const firstInput = await first;
+                  const result = await ifArray(firstInput, counter);
+                  return loop(rest, counter + 1, acc.concat(result));
+                })()
+              : acc;
+          })(input)
+        : [];
   return result;
 }
 
