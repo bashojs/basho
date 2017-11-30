@@ -239,7 +239,9 @@ describe("basho", () => {
 
   it(`Imports a file (shell), reuse import multiple times (shell)`, async () => {
     const result = await execute(
-      `${basho} 10 -i ./dist/test/square.js sqr -j "sqr(x)" -j x+100 -j "sqr(x)"`
+      `${
+        basho
+      } 10 -i ./dist/test/square.js sqr -j "sqr(x)" -j x+100 -j "sqr(x)"`
     );
     result.should.equal("40000\n");
   });
@@ -255,52 +257,72 @@ describe("basho", () => {
   });
 
   it(`Handles objects (shell)`, async () => {
-    const result = await execute(`${basho} "{ name: 'jes', age: 100 }" -e echo \\\${x.name}, \\\${x.age}`);
+    const result = await execute(
+      `${basho} "{ name: 'jes', age: 100 }" -e echo \\\${x.name}, \\\${x.age}`
+    );
     result.should.equal("jes, 100\n");
   });
 
   it(`Handles an array of Objects (shell)`, async () => {
-    const result = await execute(`${basho} "[{name:'kai'}, {name:'niki'}]" -e echo \\\${x.name}`);
+    const result = await execute(
+      `${basho} "[{name:'kai'}, {name:'niki'}]" -e echo \\\${x.name}`
+    );
     result.should.equal("kai\nniki\n");
   });
 
   it(`Handles an array of arrays (shell)`, async () => {
-    const result = await execute(`${basho} "[[1,2,3], [3,4,5]]" -e echo \\\${x[0]} \\\${x[1]} \\\${x[2]}`);
+    const result = await execute(
+      `${basho} "[[1,2,3], [3,4,5]]" -e echo \\\${x[0]} \\\${x[1]} \\\${x[2]}`
+    );
     result.should.equal("1 2 3\n3 4 5\n");
   });
 
   it(`Receives an array at once (shell)`, async () => {
-    const result = await execute(`${basho} [1,2,3,4] -a x.length -e echo \\\${x}`);
+    const result = await execute(
+      `${basho} [1,2,3,4] -a x.length -e echo \\\${x}`
+    );
     result.should.equal("4\n");
   });
 
   it(`Filters an array (shell)`, async () => {
-    const result = await execute(`${basho} [1,2,3,4] -a "x.filter(x => x > 2)" -e echo \\\${x}`);
+    const result = await execute(
+      `${basho} [1,2,3,4] -a "x.filter(x => x > 2)" -e echo \\\${x}`
+    );
     result.should.equal("3\n4\n");
   });
 
   it(`Filters an array shorthand (shell)`, async () => {
-    const result = await execute(`${basho} [1,2,3,4] -f "x\>2" -e echo \\\${x}`);
+    const result = await execute(
+      `${basho} [1,2,3,4] -f "x\>2" -e echo \\\${x}`
+    );
     result.should.equal("3\n4\n");
   });
 
   it(`Reduces an array (shell)`, async () => {
-    const result = await execute(`${basho} [1,2,3,4] -a "x.reduce((acc,x)=>acc+x,0)" -e echo \\\${x}`);
+    const result = await execute(
+      `${basho} [1,2,3,4] -a "x.reduce((acc,x)=>acc+x,0)" -e echo \\\${x}`
+    );
     result.should.equal("10\n");
   });
 
   it(`Reduces an array shorthand (shell)`, async () => {
-    const result = await execute(`${basho} [1,2,3,4] -r acc+x 0 -e echo \\\${x}`);
+    const result = await execute(
+      `${basho} [1,2,3,4] -r acc+x 0 -e echo \\\${x}`
+    );
     result.should.equal("10\n");
   });
 
   it(`Can access array indexes (shell)`, async () => {
-    const result = await execute(`${basho} "['a','b','c']" -e echo \\\${x}\\\${i}`);
+    const result = await execute(
+      `${basho} "['a','b','c']" -e echo \\\${x}\\\${i}`
+    );
     result.should.equal("a0\nb1\nc2\n");
   });
 
   it(`Can extend the pipeline further after a shell command (shell)`, async () => {
-    const result = await execute(`${basho} 10 -j x**2 -e echo \\\${x} -j "parseInt(x)+10" -e echo \\\${x}`);
+    const result = await execute(
+      `${basho} 10 -j x**2 -e echo \\\${x} -j "parseInt(x)+10" -e echo \\\${x}`
+    );
     result.should.equal("110\n");
   });
 
@@ -312,5 +334,11 @@ describe("basho", () => {
   it(`Resolves promises (shell)`, async () => {
     const result = await execute(`${basho} "Promise.resolve(10)" -j x+10`);
     result.should.equal("20\n");
+  });
+
+  it(`Prints the correct version`, async () => {
+    const packageJSON = require("../../package.json");
+    const result = await execute(`${basho} "-v"`);
+    result.should.equal(`${packageJSON.version}\n`);
   });
 });
