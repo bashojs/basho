@@ -25,7 +25,7 @@ basho -j 10**2
 Good news is, the option -j can be omitted for the first expression.
 
 ```bash
-# This works too
+# This prints 100 too
 basho 100
 
 # Prints 100
@@ -194,17 +194,28 @@ basho -i node-fetch fetch \
  -e echo \${x}
 ```
 
-Typing basho without any parameters does nothing but might make you happy. Or
-sad.
+### Advanced
+
+You can reference the output of any previous expression in a pipeline with the
+--stack option. The parameter to --stack can be an index indicating how many
+steps you want to go back, or it can be a range. Examples below.
 
 ```bash
-basho
+# Prints [2,3,4,5]
+basho [1,2,3,4] -j x+1 -j x+2 --stack 1
+
+# Prints [2,3,4,5]
+basho [1,2,3,4] -j x+1 -j x+2 --stack 1,2 -j x
 ```
+
+To turn off saving previous results (for performance reasons), use the --nostack
+option. Turning it off is hardly ever required, except when you're dealing with
+huge text transforms.
 
 ### Tip
 
-If you need the fetch module (or any other) often, you’re better off creating an alias for basho in
-.bashrc (or .bash_profile on a Mac).
+If you need the fetch module (or any other) often, you’re better off creating an
+alias for basho in .bashrc (or .bash_profile on a Mac).
 
 ```bash
 # in .bashrc
@@ -228,5 +239,14 @@ Get the weather in bangalore
 echo Bangalore,in | basho "fetch(\`http://api.openweathermap.org/data/2.5/weather?q=\${x}&appid=YOURAPIKEY&units=metric\`)" -j "x.json()" -j x.main.temp
 ```
 
-That’s all folks. [Report issues](https://www.github.com/jeswin/basho) or ping
-me on [Twitter](https://www.twitter.com/jeswin).
+## That's it
+
+Typing basho without any parameters does nothing but might make you happy. Or
+sad.
+
+```bash
+basho
+```
+
+[Report issues](https://www.github.com/jeswin/basho) or ping me on
+[Twitter](https://www.twitter.com/jeswin).

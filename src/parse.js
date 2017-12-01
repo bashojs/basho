@@ -16,6 +16,8 @@ const exec = promisify(child_process.exec);
     -r reduce
     -a Treat array as a whole
     -i Import a file or module
+    --stack Use input from the result stack
+    --nostack Disables the result stack
 */
 
 let imports = {};
@@ -56,7 +58,7 @@ async function withInput(
                   const [first, ...rest] = inputs;
                   const firstInput = await first;
                   const result = await ifArray(firstInput, counter);
-                  return loop(rest, counter + 1, acc.concat(result));
+                  return loop(rest, counter + 1, acc.concat([result]));
                 })()
               : acc;
           })(input)
@@ -114,7 +116,17 @@ async function evalExpression(exp, inputPromise) {
 function munch(parts) {
   function doMunch(parts, expression, cursor) {
     return !parts.length ||
-      ["-p", "-j", "-e", "-f", "-r", "-a", "-i"].includes(parts[0])
+      [
+        "-p",
+        "-j",
+        "-e",
+        "-f",
+        "-r",
+        "-a",
+        "-i",
+        "--stack",
+        "--nostack"
+      ].includes(parts[0])
       ? { cursor, expression }
       : doMunch(parts.slice(1), expression.concat(parts[0]), cursor + 1);
   }
@@ -132,48 +144,71 @@ function toExpressionString(args) {
     : args.join(" ");
 }
 
-export default async function parse(args, input, mustPrint = true) {
+export default async function parse(
+  args,
+  input,
+  results = [],
+  useResultStack = true,
+  mustPrint = true
+) {
   const cases = [
+    /* Disable result stacking */
+    [
+      x => x === "--nostack",
+      async () => {
+        return parse(args.slice(1), input, results, true, mustPrint);
+      }
+    ],
+
+    /* Use results from the stack */
+    [
+      x => x === "--stack",
+      async () => {
+        const [from, to] = args[1].split(",");
+        return typeof to === "undefined"
+          ? doParse(args.slice(2), results[results.length - 1 - parseInt(from)])
+          : doParse(args.slice(2), results.slice(from, to));
+      }
+    ],
+
     /* Execute shell command */
     [
       x => x === "-e",
       async () => {
         const { cursor, expression } = munch(args.slice(1));
-        return parse(
+        return doParse(
           args.slice(cursor + 1),
-          await shellCmd(toExpressionString(expression), input),
-          mustPrint
+          await shellCmd(toExpressionString(expression), input)
         );
       }
     ],
 
     /* Print */
-    [x => x === "-p", () => parse(args.slice(1), input, false)],
+    [
+      x => x === "-p",
+      () => parse(args.slice(1), input, results, useResultStack, false)
+    ],
 
     /* Named Export */
     [
       x => x === "-i",
       async () => {
         await evalImport(args[1], args[2]);
-        return parse(args.slice(3), input, mustPrint);
+        return doParse(args.slice(3), input);
       }
     ],
 
     /* Treat input as a whole array */
-    [
-      x => x === "-a",
-      () => parse(args.slice(1), new WholeArray(input), mustPrint)
-    ],
+    [x => x === "-a", () => doParse(args.slice(1), new WholeArray(input))],
 
     /* Filter */
     [
       x => x === "-f",
       async () => {
         const { cursor, expression } = munch(args.slice(1));
-        return parse(
+        return doParse(
           args.slice(cursor + 1),
-          await filter(toExpressionString(expression), input),
-          mustPrint
+          await filter(toExpressionString(expression), input)
         );
       }
     ],
@@ -184,14 +219,13 @@ export default async function parse(args, input, mustPrint = true) {
       async () => {
         const { cursor, expression } = munch(args.slice(1));
         const initialValue = expression.slice(-1)[0];
-        return parse(
+        return doParse(
           args.slice(cursor + 1),
           await reduce(
             toExpressionString(expression.slice(0, -1)),
             initialValue,
             input
-          ),
-          mustPrint
+          )
         );
       }
     ],
@@ -201,10 +235,10 @@ export default async function parse(args, input, mustPrint = true) {
       x => x === "-j",
       async () => {
         const { cursor, expression } = munch(args.slice(1));
-        return parse(
+        mustPrint;
+        return doParse(
           args.slice(cursor + 1),
-          await evalExpression(toExpressionString(expression), input),
-          mustPrint
+          await evalExpression(toExpressionString(expression), input)
         );
       }
     ],
@@ -214,14 +248,23 @@ export default async function parse(args, input, mustPrint = true) {
       x => true,
       async () => {
         const { cursor, expression } = munch(args);
-        return parse(
+        return doParse(
           args.slice(cursor),
-          await evalExpression(toExpressionString(expression), input),
-          mustPrint
+          await evalExpression(toExpressionString(expression), input)
         );
       }
     ]
   ];
+
+  async function doParse(args, input) {
+    return await parse(
+      args,
+      input,
+      useResultStack ? results.concat([input]) : results,
+      useResultStack,
+      mustPrint
+    );
+  }
 
   return args.length
     ? await cases.find(([predicate]) => predicate(args[0]))[1]()

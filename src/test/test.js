@@ -73,6 +73,14 @@ describe("basho", () => {
     });
   });
 
+  it(`Pipes an array of arrays`, async () => {
+    const result = await parse(["[[1,2,3], [2,3,4]]", "-j", "x[0]+10"]);
+    result.should.deepEqual({
+      mustPrint: true,
+      result: [11, 12]
+    });
+  });
+
   it(`Unset the mustPrint flag`, async () => {
     const result = await parse(["-p", "[1,2,3,4]"]);
     result.should.deepEqual({ mustPrint: false, result: [1, 2, 3, 4] });
@@ -167,6 +175,39 @@ describe("basho", () => {
     result.should.deepEqual({
       mustPrint: true,
       result: ["The answer is 10", "The answer is 10"]
+    });
+  });
+
+  it(`References the result stack for input`, async () => {
+    const result = await parse([
+      "[10,20,30,40]",
+      "-j",
+      "x+1",
+      "-j",
+      "x+2",
+      "--stack",
+      "2",
+      "-j",
+      "x"
+    ]);
+    result.should.deepEqual({ mustPrint: true, result: [10, 20, 30, 40] });
+  });
+
+  it(`References a result stack range for input`, async () => {
+    const result = await parse([
+      "[10,20,30,40]",
+      "-j",
+      "x+1",
+      "-j",
+      "x+2",
+      "--stack",
+      "0,2",
+      "-j",
+      "x"
+    ]);
+    result.should.deepEqual({
+      mustPrint: true,
+      result: [[10, 20, 30, 40], [11, 21, 31, 41]]
     });
   });
 
@@ -334,6 +375,16 @@ describe("basho", () => {
   it(`Resolves promises (shell)`, async () => {
     const result = await execute(`${basho} "Promise.resolve(10)" -j x+10`);
     result.should.equal("20\n");
+  });
+
+  it(`Can reference the result stack (shell)`, async () => {
+    const result = await execute(`${basho} [10,20,30,40] -j x+1 -j x+2 --stack 2 -j x`);
+    result.should.equal("10\n20\n30\n40\n");
+  });
+
+  it(`Can reference a result stack range (shell)`, async () => {
+    const result = await execute(`${basho} [10,20,30,40] -j x+1 -j x+2 --stack 0,2 -j x`);
+    result.should.equal("[ 10, 20, 30, 40 ]\n[ 11, 21, 31, 41 ]\n");
   });
 
   it(`Prints the correct version`, async () => {

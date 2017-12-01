@@ -6,7 +6,7 @@ import haikus from "./haikus";
 
 if (process.argv.length > 2) {
   if (process.argv[2] === "-v") {
-    console.log("0.0.5");
+    console.log("0.0.6");
     process.exit(0);
   } else {
     getStdin()
