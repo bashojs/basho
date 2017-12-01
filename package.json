@@ -2,7 +2,9 @@
   "name": "basho",
   "version": "0.0.7",
   "author": "Isotropy Team<isotropy@agilehead.com>",
-  "contributors": ["Jeswin Kumar<jeswinpk@agilehead.com>"],
+  "contributors": [
+    "Jeswin Kumar<jeswinpk@agilehead.com>"
+  ],
   "scripts": {
     "build": "./build.sh",
     "test": "mocha dist/test/test.js",
@@ -13,7 +15,9 @@
   },
   "main": "dist/basho.js",
   "dependencies": {
+    "babel-polyfill": "^6.26.0",
     "get-stdin": "^5.0.1",
+    "lazily-async": "^0.0.16",
     "nodefunc-promisify": "^2.0.2"
   },
   "devDependencies": {

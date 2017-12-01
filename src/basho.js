@@ -1,7 +1,9 @@
 #!/usr/bin/env node
 
-import parse from "./parse";
+import "babel-polyfill";
 import getStdin from "get-stdin";
+import { Seq } from "lazily-async";
+import parse from "./parse";
 import haikus from "./haikus";
 
 if (process.argv.length > 2) {
@@ -13,15 +15,15 @@ if (process.argv.length > 2) {
       .then(async str => {
         const input = str.replace(/\n$/, "").split("\n");
         const output = await parse(
-          process.argv.slice(2),
-          input.length > 1 ? input : input[0]
+          input.concat(process.argv.slice(2)),
+          [],
+          true,
+          true,
+          x => console.log(x)
         );
         if (output.mustPrint) {
-          if (Array.isArray(output.result)) {
-            output.result.forEach(i => console.log(i));
-          } else {
-            console.log(output.result);
-          }
+          const results = await output.result.toArray();
+          results.forEach(i => console.log(i));
         }
         process.exit(0);
       })
