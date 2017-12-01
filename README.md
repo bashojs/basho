@@ -9,8 +9,10 @@ npm install -g basho
 ### Basics
 
 Basho evaluates a pipeline of instructions left to right. Instructions can be
-JavaScript code, reference to an external JS file, or a shell command. To
-evaluate a JavaScript expression, use the option -j. Let’s start with a single
+JavaScript code, reference to an external JS file, or a shell command. 
+[Evaluation is lazy](https://en.wikipedia.org/wiki/Lazy_evaluation) by design, more on this later.
+
+To evaluate a JavaScript expression, use the option -j. Let’s start with a single
 item in the pipeline, a JavaScript constant.
 
 ```bash
@@ -61,7 +63,16 @@ always used as a placeholder for receiving the previous input.
 
 ```bash
 # Prints 10000
-basho 100 -j x**2
+basho 100 -j x**2 -j x+100
+```
+
+### Lazy evaluation and exit conditions
+
+You may choose to terminate the pipeline with the -x option when a condition is met. In which case, the previous stages will not be unnecessarily run to completion. Here's an example.
+
+```bash
+# Returns 1, 2
+basho [1,2,3,4,5] -j x+10 -x x>30
 ```
 
 ### Shell Commands
@@ -84,6 +95,21 @@ output becomes the input for the next command.
 basho 10 -j x**2 -e echo \${x} -j "parseInt(x)+10" -e echo \${x}
 ```
 
+basho can receive input via stdin. As always, ‘x’ represents the input.
+
+```bash
+# Prints 100
+echo 10 | basho parseInt(x)**2
+```
+
+There’s nothing stopping you from using all the piping magic built into your
+shell.
+
+```bash
+# Prints 100
+basho 10 -j x**2 | xargs echo
+```
+
 ### Importing JS files
 
 You can import a function from a JS file or an npm module with the -i option.
@@ -100,15 +126,6 @@ basho 10 -i square.js sqr -j "sqr(x)"
 
 # Prints 40000. Does sqr(10), then adds 100, then sqr(200)
 basho 10 -i square.js sqr -j "sqr(x)" -j x+100 -j "sqr(x)"
-```
-
-Reading from stdin
-
-basho can receive input via stdin. As always, ‘x’ represents the input.
-
-```bash
-# Prints 100
-echo 10 | basho parseInt(x)**2
 ```
 
 ### Arrays, Filter and Reduce
@@ -185,15 +202,9 @@ variable ‘i’ in lambdas and shell command templates.
 basho "['a','b','c']" -e echo \${x}\${i}
 ```
 
-There’s nothing stopping you from using all the piping magic built into your
-shell.
+### Promises! 
 
-```bash
-# Prints 100
-basho 10 x**2 | echo
-```
-
-Promises! If an JS expression evaluates to a promise, it is resolved before
+If an JS expression evaluates to a promise, it is resolved before
 passing it to the next command in the pipeline.
 
 ```bash
