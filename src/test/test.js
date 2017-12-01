@@ -73,14 +73,6 @@ describe("basho", () => {
     });
   });
 
-  it(`Pipes an array of arrays`, async () => {
-    const result = await parse(["[[1,2,3], [2,3,4]]", "-j", "x[0]+10"]);
-    result.should.deepEqual({
-      mustPrint: true,
-      result: [11, 12]
-    });
-  });
-
   it(`Unset the mustPrint flag`, async () => {
     const result = await parse(["-p", "[1,2,3,4]"]);
     result.should.deepEqual({ mustPrint: false, result: [1, 2, 3, 4] });
@@ -89,6 +81,19 @@ describe("basho", () => {
   it(`Pipes a result into the next expression`, async () => {
     const result = await parse(["[1,2,3,4]", "-j", "x**2"]);
     result.should.deepEqual({ mustPrint: true, result: [1, 4, 9, 16] });
+  });
+
+  it(`Evals a debug expression`, async () => {
+    const result = await parse(["[1,2,3,4]", "-d", "x+10", "-j", "x**2"]);
+    result.should.deepEqual({ mustPrint: true, result: [1, 4, 9, 16] });
+  });
+
+  it(`Pipes an array of arrays`, async () => {
+    const result = await parse(["[[1,2,3], [2,3,4]]", "-j", "x[0]+10"]);
+    result.should.deepEqual({
+      mustPrint: true,
+      result: [11, 12]
+    });
   });
 
   it(`Passes an array as whole with the -a option`, async () => {
@@ -271,6 +276,11 @@ describe("basho", () => {
     result.should.equal("10\n");
   });
 
+  it(`Evals a debug expression (shell)`, async () => {
+    const result = await execute(`${basho} 10 -d x+11 -j x -e echo \\\${x}`);
+    result.should.equal("21\n10\n");
+  });
+
   it(`Imports a file (shell)`, async () => {
     const result = await execute(
       `${basho} 10 -i ./dist/test/square.js sqr -j "sqr(x)"`
@@ -387,9 +397,15 @@ describe("basho", () => {
     result.should.equal("[ 10, 20, 30, 40 ]\n[ 11, 21, 31, 41 ]\n");
   });
 
-  it(`Prints the correct version`, async () => {
+  it(`Prints the correct version with -v`, async () => {
     const packageJSON = require("../../package.json");
     const result = await execute(`${basho} "-v"`);
+    result.should.equal(`${packageJSON.version}\n`);
+  });
+
+  it(`Prints the correct version with --version`, async () => {
+    const packageJSON = require("../../package.json");
+    const result = await execute(`${basho} "--version"`);
     result.should.equal(`${packageJSON.version}\n`);
   });
 });

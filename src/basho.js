@@ -5,8 +5,8 @@ import getStdin from "get-stdin";
 import haikus from "./haikus";
 
 if (process.argv.length > 2) {
-  if (process.argv[2] === "-v") {
-    console.log("0.0.6");
+  if (process.argv[2] === "-v" || process.argv[2] === "--version") {
+    console.log("0.0.7");
     process.exit(0);
   } else {
     getStdin()

@@ -16,6 +16,7 @@ const exec = promisify(child_process.exec);
     -r reduce
     -a Treat array as a whole
     -i Import a file or module
+    -d Evaluate and print a value for debugging
     --stack Use input from the result stack
     --nostack Disables the result stack
 */
@@ -124,6 +125,7 @@ function munch(parts) {
         "-r",
         "-a",
         "-i",
+        "-d",
         "--stack",
         "--nostack"
       ].includes(parts[0])
@@ -230,12 +232,25 @@ export default async function parse(
       }
     ],
 
+    /* Debug */
+    [
+      x => x === "-d",
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        const result = await evalExpression(
+          toExpressionString(expression),
+          input
+        );
+        console.log(result);
+        return doParse(args.slice(cursor + 1), input);
+      }
+    ],
+
     /* Everything else */
     [
       x => x === "-j",
       async () => {
         const { cursor, expression } = munch(args.slice(1));
-        mustPrint;
         return doParse(
           args.slice(cursor + 1),
           await evalExpression(toExpressionString(expression), input)
