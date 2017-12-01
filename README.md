@@ -6,6 +6,8 @@ Installation
 npm install -g basho
 ```
 
+### Basics
+
 Basho evaluates a pipeline of instructions left to right. Instructions can be
 JavaScript code, reference to an external JS file, or a shell command. To
 evaluate a JavaScript expression, use the option -j. Let’s start with a single
@@ -52,6 +54,8 @@ basho '"hello, world"'
 basho -q hello, world
 ```
 
+### Piping Results
+
 You can pipe an expression into a subsequent expression. The variable ‘x’ is
 always used as a placeholder for receiving the previous input.
 
@@ -59,6 +63,8 @@ always used as a placeholder for receiving the previous input.
 # Prints 10000
 basho 100 -j x**2
 ```
+
+### Shell Commands
 
 Execute shell commands with the -e option. The shell command is expanded as a JS
 template string, with the variable ‘x’ holding the input from the preceding
@@ -69,6 +75,16 @@ special meaning in your shell, such as $, >, <, |, () etc.
 # Prints 1000. Escape the $.
 basho 1000 -e echo \${x}
 ```
+
+You can extend the pipeline further after a shell command. The shell command’s
+output becomes the input for the next command.
+
+```bash
+# echo 110 - which is (10^2) + 10
+basho 10 -j x**2 -e echo \${x} -j "parseInt(x)+10" -e echo \${x}
+```
+
+### Importing JS files
 
 You can import a function from a JS file or an npm module with the -i option.
 The -i option takes two parameters; a filename or module name and an alias for
@@ -86,12 +102,16 @@ basho 10 -i square.js sqr -j "sqr(x)"
 basho 10 -i square.js sqr -j "sqr(x)" -j x+100 -j "sqr(x)"
 ```
 
+Reading from stdin
+
 basho can receive input via stdin. As always, ‘x’ represents the input.
 
 ```bash
 # Prints 100
 echo 10 | basho parseInt(x)**2
 ```
+
+### Arrays, Filter and Reduce
 
 If the input to an expression is an array, the subsequent expression or command
 is executed for each item in the array.
@@ -165,14 +185,6 @@ variable ‘i’ in lambdas and shell command templates.
 basho "['a','b','c']" -e echo \${x}\${i}
 ```
 
-You can extend the pipeline further after a shell command. The shell command’s
-output becomes the input for the next command.
-
-```bash
-# echo 110 - which is (10^2) + 10
-basho 10 -j x**2 -e echo \${x} -j "parseInt(x)+10" -e echo \${x}
-```
-
 There’s nothing stopping you from using all the piping magic built into your
 shell.
 
@@ -192,6 +204,14 @@ basho "Promise.resolve(10)" -e echo \${x}
 basho -i node-fetch fetch \
  -j "fetch('http://oaks.nvg.org/basho.html')" \
  -e echo \${x}
+```
+
+### Debugging
+
+You can add a -d option anywhere in the pipeline to print the current value.
+
+```bash
+basho 10 -d x+11 -j x -e echo \${x}
 ```
 
 ### Advanced

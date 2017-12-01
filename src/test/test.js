@@ -120,7 +120,6 @@ describe("basho", () => {
       "-j",
       "sqr(x)"
     ]);
-    debugger;
     result.should.deepEqual({ mustPrint: true, result: 100 });
   });
 
