@@ -266,13 +266,13 @@ basho 'fetch("https://example.com/weather")' -j x.temperature
 Count the number of occurences of a word in a string or file.
 
 ````bash
-echo hello world hello hello | basho '(x.match(/hello/g) || []).length'
+echo '"hello world hello hello"' | basho '(x.match(/hello/g) || []).length'
 ````
 
 Get the weather in bangalore
 
 ```bash
-echo Bangalore,in | basho 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
+echo '"Bangalore,in"' | basho 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
 ```
 
 ## That's it
