@@ -27,8 +27,9 @@ if (process.argv.length > 2) {
           x => console.log(x)
         );
         if (output.mustPrint) {
-          const results = await output.result.toArray();
-          results.forEach(i => console.log(i));
+          for await (const item of output.result) {
+            console.log(item);
+          }
         }
         process.exit(0);
       })
