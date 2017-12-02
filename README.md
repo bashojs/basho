@@ -47,13 +47,13 @@ basho -p 100
 
 Working with strings is a little difficult. Since bash will chew the quotes for
 itself, you’d need to either use single quotes around your double quotes. So we
-made a shorthand for this, the -q option.
+have a shorthand for this, the -q option.
 
 ```bash
 # Prints hello, world
 basho '"hello, world"'
 
-# Here's a better way to do this
+# Here's another way to do this
 basho -q hello, world
 ```
 
@@ -104,7 +104,7 @@ basho can receive input via stdin. As always, ‘x’ represents the input.
 
 ```bash
 # Prints 100
-echo 10 | basho parseInt(x)**2
+echo 10 | basho 'parseInt(x)**2'
 ```
 
 There’s nothing stopping you from using all the piping magic built into your
