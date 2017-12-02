@@ -1,4 +1,4 @@
-# Basho: Shell macros with the goodness of JavaScript templates
+# Basho: Shell Automation with Plain JavaScript 
 
 Installation
 
