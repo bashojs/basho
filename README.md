@@ -9,9 +9,9 @@ npm install -g basho
 ### Basics
 
 Basho evaluates a pipeline of instructions left to right. Instructions can be
-JavaScript code, reference to an external JS file, or a shell command.
-[Evaluation is lazy](https://en.wikipedia.org/wiki/Lazy_evaluation) by design,
-more on this later.
+JavaScript code, reference to an external JS file, or a shell command. What
+makes basho interesting is [Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this
+later.
 
 To evaluate a JavaScript expression, use the option -j. Let’s start with a
 single item in the pipeline, a JavaScript constant.
@@ -74,8 +74,8 @@ met. Since the pipeline is lazy, further expressions (or bash commands) are not
 evaluated.
 
 ```bash
-# Returns 10, 20
-basho [1,2,3,4,5] -t x>2 -j x*10
+# Prints 10 and 20. The rest are never evaluated.
+basho [1,2,3,4,5] -t "x>2" -j x*10
 ```
 
 ### Shell Commands

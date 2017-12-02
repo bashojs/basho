@@ -41,12 +41,18 @@ describe("basho", () => {
 
   it(`Evals a bool`, async () => {
     const output = await parse(["true"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [true] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [true]
+    });
   });
 
   it(`Evals a string`, async () => {
     const output = await parse(['"hello, world"']);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["hello, world"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["hello, world"]
+    });
   });
 
   it(`Evals a template string`, async () => {
@@ -59,12 +65,18 @@ describe("basho", () => {
 
   it(`Quotes a string`, async () => {
     const output = await parse(["-q", "hello, world"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["hello, world"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["hello, world"]
+    });
   });
 
   it(`Quotes an array of strings`, async () => {
     const output = await parse(["-q", "hello,", "world"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["hello, world"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["hello, world"]
+    });
   });
 
   it(`Evals a promise`, async () => {
@@ -74,12 +86,18 @@ describe("basho", () => {
 
   it(`Evals an array`, async () => {
     const output = await parse(["[1,2,3,4]"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [1, 2, 3, 4] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [1, 2, 3, 4]
+    });
   });
 
   it(`Evals an object`, async () => {
     const output = await parse(["{ name: 'kai' }"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [{ name: "kai" }] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [{ name: "kai" }]
+    });
   });
 
   it(`Evals an array of objects`, async () => {
@@ -92,12 +110,18 @@ describe("basho", () => {
 
   it(`Unset the mustPrint flag`, async () => {
     const output = await parse(["-p", "[1,2,3,4]"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: false, result: [1, 2, 3, 4] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: false,
+      result: [1, 2, 3, 4]
+    });
   });
 
   it(`Pipes a result into the next expression`, async () => {
     const output = await parse(["[1,2,3,4]", "-j", "x**2"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [1, 4, 9, 16] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [1, 4, 9, 16]
+    });
   });
 
   it(`Evals a debug expression`, async () => {
@@ -132,12 +156,18 @@ describe("basho", () => {
 
   it(`Filters an array`, async () => {
     const output = await parse(["[1,2,3,4]", "-f", "x > 2"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [3, 4] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [3, 4]
+    });
   });
 
   it(`Reduces an array`, async () => {
     const output = await parse(["[1,2,3,4]", "-r", "acc + x", "0"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [10] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [10]
+    });
   });
 
   it(`Flatmaps`, async () => {
@@ -148,14 +178,26 @@ describe("basho", () => {
     });
   });
 
-  it(`Exits based on a predicate`, async () => {
+  it(`Terminates based on a predicate`, async () => {
     const output = await parse(["[1,2,3,4]", "-t", "x > 2", "-j", "x*10"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [10, 20] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [10, 20]
+    });
   });
 
-  it(`Exits based on a predicate with Promises in the pipeline`, async () => {
-    const output = await parse(["[Promise.resolve(1),2,3,4]", "-t", "x > 2", "-j", "x*10"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [10, 20] });
+  it(`Terminates based on a predicate with Promises in the pipeline`, async () => {
+    const output = await parse([
+      "[Promise.resolve(1),2,3,4]",
+      "-t",
+      "x > 2",
+      "-j",
+      "x*10"
+    ]);
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [10, 20]
+    });
   });
 
   it(`Calls a function in an external file`, async () => {
@@ -167,7 +209,10 @@ describe("basho", () => {
       "-j",
       "sqr(x)"
     ]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [100] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [100]
+    });
   });
 
   it(`Calls a node module`, async () => {
@@ -180,27 +225,42 @@ describe("basho", () => {
       "-j",
       "path.join.apply(path, x)"
     ]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["/a/b/c"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["/a/b/c"]
+    });
   });
 
   it(`Calls a shell command`, async () => {
     const output = await parse(["10", "-e", "echo ${x}"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["10"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["10"]
+    });
   });
 
   it(`Passes an object to a shell command`, async () => {
     const output = await parse(["{ name: 'kai' }", "-e", "echo ${x.name}"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["kai"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["kai"]
+    });
   });
 
   it(`Calls a shell command which outputs multiple lines`, async () => {
     const output = await parse(["10", "-e", "echo ${x};echo ${x};"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [["10", "10"]] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [["10", "10"]]
+    });
   });
 
   it(`Calls a shell command which outputs newlines`, async () => {
     const output = await parse(["10", "-e", 'echo "${x}\n${x}"']);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [["10", "10"]] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [["10", "10"]]
+    });
   });
 
   it(`Passes an array to a shell command`, async () => {
@@ -213,7 +273,10 @@ describe("basho", () => {
 
   it(`Passes the output of the shell command output to the next expression`, async () => {
     const output = await parse(["-e", "echo 10", "-j", "`The answer is ${x}`"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["The answer is 10"] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: ["The answer is 10"]
+    });
   });
 
   it(`Passes multiline output of the shell command output to the next expression`, async () => {
@@ -241,7 +304,10 @@ describe("basho", () => {
       "-j",
       "x"
     ]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [10, 20, 30, 40] });
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [10, 20, 30, 40]
+    });
   });
 
   it(`Prints a number (shell)`, async () => {
@@ -413,6 +479,22 @@ describe("basho", () => {
       `${basho} [10,20,30,40] -j x+1 -j x+2 --stack 2 -j x`
     );
     output.should.equal("10\n20\n30\n40\n");
+  });
+
+  it(`Terminates based on a predicate (shell)`, async () => {
+    const output = await execute(
+      `${basho} "[1,2,3,4]" -t "x\>2" -j "x*10"`
+    );
+
+    output.should.equal("10\n20\n");
+  });
+
+  it(`Terminates based on a predicate with Promises in the pipeline (shell)`, async () => {
+    const output = await execute(
+      `${basho} "[Promise.resolve(1),2,3,4]" -t "x\>2" -j "x*10"`
+    );
+
+    output.should.equal("10\n20\n");
   });
 
   it(`Prints the correct version with -v`, async () => {
