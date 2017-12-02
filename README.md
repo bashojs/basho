@@ -9,11 +9,12 @@ npm install -g basho
 ### Basics
 
 Basho evaluates a pipeline of instructions left to right. Instructions can be
-JavaScript code, reference to an external JS file, or a shell command. 
-[Evaluation is lazy](https://en.wikipedia.org/wiki/Lazy_evaluation) by design, more on this later.
+JavaScript code, reference to an external JS file, or a shell command.
+[Evaluation is lazy](https://en.wikipedia.org/wiki/Lazy_evaluation) by design,
+more on this later.
 
-To evaluate a JavaScript expression, use the option -j. Let’s start with a single
-item in the pipeline, a JavaScript constant.
+To evaluate a JavaScript expression, use the option -j. Let’s start with a
+single item in the pipeline, a JavaScript constant.
 
 ```bash
 # Prints 100
@@ -68,11 +69,13 @@ basho 100 -j x**2 -j x+100
 
 ### Lazy evaluation and exit conditions
 
-You may choose to terminate the pipeline with the -x option when a condition is met. In which case, the previous stages will not be unnecessarily run to completion. Here's an example.
+You may choose to terminate the pipeline with the -t option when a condition is
+met. Since the pipeline is lazy, further expressions (or bash commands) are not
+evaluated.
 
 ```bash
-# Returns 1, 2
-basho [1,2,3,4,5] -j x+10 -x x>30
+# Returns 10, 20
+basho [1,2,3,4,5] -t x>2 -j x*10
 ```
 
 ### Shell Commands
@@ -165,33 +168,26 @@ A command can choose to receive the entire array at once with the -a option.
 basho [1,2,3,4] -a x.length -e echo \${x}
 ```
 
-That’s useful for filtering arrays.
-
-```bash
-# echo 3; echo 4
-basho [1,2,3,4] -a "x.filter(x => x > 2)" -e echo \${x}
-```
-
-There’s a shorthand for filter, the option -f.
+Filter arrays with the -f option.
 
 ```bash
 # echo 3; echo 4
 basho [1,2,3,4] -f x>2 -e echo \${x}
 ```
 
-There’s reduce too. Here’s the long form.
-
-```bash
-# Prints the sum 10
-basho [1,2,3,4] -a "x.reduce((acc,x)=>acc+x,0)" -e echo \${x}
-```
-
-Shorthand for reduce, the option -r. The first parameter is the lambda, the
-second parameter is the initial value of the accumulator.
+Reduce with the -r option. The first parameter is the lambda, the second
+parameter is the initial value of the accumulator.
 
 ```bash
 # Prints the sum 10
 basho [1,2,3,4] -r acc+x 0 -e echo \${x}
+```
+
+There's also flatMap, the -m option
+
+```bash
+# Returns [11, 21, 12, 22, 13, 23]
+basho [1,2,3] -m [x+10,x+20]
 ```
 
 Btw, you could also access an array index in the template literal as the
@@ -202,10 +198,10 @@ variable ‘i’ in lambdas and shell command templates.
 basho "['a','b','c']" -e echo \${x}\${i}
 ```
 
-### Promises! 
+### Promises!
 
-If an JS expression evaluates to a promise, it is resolved before
-passing it to the next command in the pipeline.
+If an JS expression evaluates to a promise, it is resolved before passing it to
+the next command in the pipeline.
 
 ```bash
 # Prints 10
@@ -229,14 +225,11 @@ basho 10 -d x+11 -j x -e echo \${x}
 
 You can reference the output of any previous expression in a pipeline with the
 --stack option. The parameter to --stack can be an index indicating how many
-steps you want to go back, or it can be a range. Examples below.
+steps you want to go back.
 
 ```bash
 # Prints [2,3,4,5]
 basho [1,2,3,4] -j x+1 -j x+2 --stack 1
-
-# Prints [2,3,4,5]
-basho [1,2,3,4] -j x+1 -j x+2 --stack 1,2 -j x
 ```
 
 To turn off saving previous results (for performance reasons), use the --nostack

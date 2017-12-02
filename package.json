@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Isotropy Team<isotropy@agilehead.com>",
   "contributors": [
     "Jeswin Kumar<jeswinpk@agilehead.com>"
@@ -17,7 +17,7 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "get-stdin": "^5.0.1",
-    "lazily-async": "^0.0.16",
+    "lazily-async": "^0.0.17",
     "nodefunc-promisify": "^2.0.2"
   },
   "devDependencies": {

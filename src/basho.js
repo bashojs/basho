@@ -13,9 +13,10 @@ if (process.argv.length > 2) {
   } else {
     getStdin()
       .then(async str => {
-        const input = str.replace(/\n$/, "").split("\n");
+        const input = str.replace(/\n$/, "").split("\n").filter(x => x !== "");
         const output = await parse(
           input.concat(process.argv.slice(2)),
+          undefined,
           [],
           true,
           true,

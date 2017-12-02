@@ -9,17 +9,19 @@ const exec = promisify(child_process.exec);
 
 /*
   Options:
-    -p print
-    -j JS expression
-    -q Quote expression as string
-    -e shell command
-    -f filter
-    -r reduce
-    -a Treat array as a whole
-    -i Import a file or module
-    -d Evaluate and print a value for debugging
-    --stack Use input from the result stack
-    --nostack Disables the result stack
+    -p          print
+    -j          JS expression
+    -q          quote expression as string
+    -e          shell command
+    -f          filter
+    -m          flatMap
+    -r          reduce
+    -a          treat array as a whole
+    -i          import a file or module
+    -d          evaluate and print a value for debugging
+    -t          terminate evaluation
+    --stack     Use input from the result stack
+    --nostack   Disables the result stack
 */
 
 class QuotedExpression {
@@ -28,9 +30,44 @@ class QuotedExpression {
   }
 }
 
-function shellCmd(template, input) {
-  const fn = eval(`(x, i) => \`${template}\``);
-  return input.map(input, async (x, i) => exec(fn(x, i)));
+async function evalExpression(exp, _input) {
+  return typeof _input === "undefined" || _input === ""
+    ? await (async () => {
+        const code = `async () => (${exp})`;
+        const input = await eval(code)();
+        return Array.isArray(input) ? Seq.of(input) : Seq.of([input]);
+      })()
+    : await (async () => {
+        const code = `async (x, i) => (${exp})`;
+        const input =
+          _input instanceof Seq
+            ? _input
+            : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
+        return input.map(await eval(code));
+      })();
+}
+
+async function shellCmd(template, input) {
+  const fn = await eval(`async (x, i) => \`${template}\``);
+  return typeof input === "undefined" || input === ""
+    ? await (async () => {
+        const shellResult = await exec(await fn());
+        const items = shellResult
+          .split("\n")
+          .filter(x => x !== "")
+          .map(x => x.replace(/\n$/, ""));
+        return Seq.of(items);
+      })()
+    : (() => {
+        return input.map(async (x, i) => {
+          const shellResult = await exec(await fn(x, i));
+          const items = shellResult
+            .split("\n")
+            .filter(x => x !== "")
+            .map(x => x.replace(/\n$/, ""));
+          return items.length === 1 ? items[0] : items;
+        });
+      })();
 }
 
 function evalImport(filename, alias) {
@@ -41,30 +78,21 @@ function evalImport(filename, alias) {
 }
 
 async function filter(exp, input) {
-  const code = `(x, i) => (${exp})`;
-  const fn = eval(code);
-  const items = await input.toArray();
-  return items.filter((x, i) => fn(x, i));
+  const code = `async (x, i) => (${exp})`;
+  const fn = await eval(code);
+  return input.filter(fn);
 }
 
 async function reduce(exp, input, initialValue) {
-  const code = `(acc, x, i) => (${exp})`;
-  const fn = eval(code);
-  const items = await input.toArray();
-  return items.reduce((acc, x, i) => fn(acc, x, i), eval(initialValue));
+  const code = `async (acc, x, i) => (${exp})`;
+  const fn = await eval(code);
+  return await input.reduce(fn, await eval(initialValue));
 }
 
-function evalExpression(exp, _input) {
-  debugger;
-  const input =
-    _input instanceof Seq
-      ? _input
-      : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
-  input.toArray().then(x => {
-    debugger;
-  });
-  const code = `(x, i) => (${exp})`;
-  return input.map(eval(code));
+async function flatMap(exp, input) {
+  const code = `async (x, i) => (${exp})`;
+  const fn = await eval(code);
+  return input.flatMap(fn);
 }
 
 function munch(parts) {
@@ -76,9 +104,12 @@ function munch(parts) {
         "-e",
         "-f",
         "-r",
+        "-m",
         "-a",
         "-i",
         "-d",
+        "-q",
+        "-t",
         "--stack",
         "--nostack"
       ].includes(parts[0])
@@ -99,7 +130,7 @@ function toExpressionString(args) {
     : args.join(" ");
 }
 
-export default function parse(
+export default async function parse(
   args,
   input,
   results = [],
@@ -111,30 +142,27 @@ export default function parse(
     /* Disable result stacking */
     [
       x => x === "--nostack",
-      () => {
-        return parse(args.slice(1), results, true, mustPrint, onDebug);
-      }
+      async () => await parse(args.slice(1), results, true, mustPrint, onDebug)
     ],
 
     /* Use results from the stack */
     [
       x => x === "--stack",
-      () => {
-        const [from, to] = args[1].split(",");
-        return typeof to === "undefined"
-          ? doParse(args.slice(2), results[results.length - 1 - parseInt(from)])
-          : doParse(args.slice(2), results.slice(from, to));
-      }
+      async () =>
+        await doParse(
+          args.slice(2),
+          results[results.length - 1 - parseInt(args[1])]
+        )
     ],
 
     /* Execute shell command */
     [
       x => x === "-e",
-      () => {
+      async () => {
         const { cursor, expression } = munch(args.slice(1));
-        return doParse(
+        return await doParse(
           args.slice(cursor + 1),
-          shellCmd(toExpressionString(expression), input)
+          await shellCmd(toExpressionString(expression), input)
         );
       }
     ],
@@ -142,30 +170,39 @@ export default function parse(
     /* Print */
     [
       x => x === "-p",
-      () => parse(args.slice(1), input, results, useResultStack, false, onDebug)
+      async () =>
+        await parse(
+          args.slice(1),
+          input,
+          results,
+          useResultStack,
+          false,
+          onDebug
+        )
     ],
 
     /* Named Export */
     [
       x => x === "-i",
-      () => {
+      async () => {
         evalImport(args[1], args[2]);
-        return doParse(args.slice(3), input);
+        return await doParse(args.slice(3), input);
       }
     ],
 
-    /* Treat input as a whole array */
-    [x => x === "-a", () => doParse(args.slice(1), input.toArray())],
+    /* Enumerate sequence into an array */
+    [
+      x => x === "-a",
+      async () => await doParse(args.slice(1), [await input.toArray()])
+    ],
 
     /* Filter */
     [
       x => x === "-f",
       async () => {
         const { cursor, expression } = munch(args.slice(1));
-        return doParse(
-          args.slice(cursor + 1),
-          await filter(toExpressionString(expression), input)
-        );
+        const filtered = await filter(toExpressionString(expression), input);
+        return await doParse(args.slice(cursor + 1), Seq.of(filtered));
       }
     ],
 
@@ -175,59 +212,89 @@ export default function parse(
       async () => {
         const { cursor, expression } = munch(args.slice(1));
         const initialValue = expression.slice(-1)[0];
-        return doParse(
-          args.slice(cursor + 1),
-          await reduce(
-            toExpressionString(expression.slice(0, -1)),
-            input,
-            initialValue
-          )
+        const reduced = await reduce(
+          toExpressionString(expression.slice(0, -1)),
+          input,
+          initialValue
         );
+        return await doParse(args.slice(cursor + 1), Seq.of([reduced]));
+      }
+    ],
+
+    /* Flatmap */
+    [
+      x => x === "-m",
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        const filtered = await flatMap(toExpressionString(expression), input);
+        return await doParse(args.slice(cursor + 1), Seq.of(filtered));
       }
     ],
 
     /* Debug */
     [
       x => x === "-d",
-      () => {
+      async () => {
+        const x = await input.toArray();
         const { cursor, expression } = munch(args.slice(1));
-        const fn = eval(`(x, i) => (${expression})`);
+        const fn = await eval(`(x, i) => (${expression})`);
         const newSeq = Seq.of(input).map(async (x, i) => {
-          const res = fn(x, i);
-          onDebug(x);
+          const res = await fn(x, i);
+          onDebug(res);
           return x;
         });
-        return doParse(args.slice(cursor + 1), newSeq);
+        return await doParse(args.slice(cursor + 1), newSeq);
       }
     ],
 
     /* JS expressions */
     [
       x => x === "-j",
-      () => {
+      async () => {
         const { cursor, expression } = munch(args.slice(1));
-        return doParse(
+        return await doParse(
           args.slice(cursor + 1),
-          evalExpression(toExpressionString(expression), input)
+          await evalExpression(toExpressionString(expression), input)
         );
       }
     ],
 
-    /* Everything else as JS expressions */
+    /* Exit the pipeline */
     [
+      x => x === "-t",
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        async function* asyncGenerator() {
+          const fn = await eval(`(x, i) => (${expression})`);
+          let i = 0;
+          for await (const x of input) {
+            const res = fn(x, i);
+            if (res === true) return;
+            else {
+              yield x;
+              i++;
+            }
+          }
+        };
+        return await doParse(args.slice(cursor + 1), new Seq(asyncGenerator));
+      }
+    ],
+
+    [
+      /* Everything else as JS expressions */
       x => true,
-      () => {
+      async () => {
         const { cursor, expression } = munch(args);
-        return doParse(
-          args.slice(cursor + 1),
-          evalExpression(toExpressionString(expression), input)
+        return await doParse(
+          args.slice(cursor),
+          await evalExpression(toExpressionString(expression), input)
         );
       }
     ]
   ];
 
-  function doParse(args, input) {
-    return parse(
+  async function doParse(args, input) {
+    return await parse(
       args,
       input,
       useResultStack ? results.concat([input]) : results,
@@ -238,6 +305,6 @@ export default function parse(
   }
 
   return args.length
-    ? cases.find(([predicate]) => predicate(args[0]))[1]()
+    ? await cases.find(([predicate]) => predicate(args[0]))[1]()
     : { mustPrint, result: input };
 }
