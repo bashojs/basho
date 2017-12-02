@@ -27,7 +27,7 @@ basho -j true
 basho -j 10**2
 ```
 
-Good news is, the option -j can be omitted for the first expression.
+The option -j can be omitted for the first expression.
 
 ```bash
 # This prints 100 too
