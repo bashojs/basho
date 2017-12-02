@@ -124,10 +124,10 @@ describe("basho", () => {
     });
   });
 
-  it(`Evals a debug expression`, async () => {
+  it(`Evals and logs an expression`, async () => {
     resetDebugMessages();
     const output = await parse(
-      ["[1,2,3,4]", "-d", "x+10", "-j", "x**2"],
+      ["[1,2,3,4]", "-l", "x+10", "-j", "x**2"],
       undefined,
       [],
       true,
@@ -244,6 +244,24 @@ describe("basho", () => {
     (await toResult(output)).should.deepEqual({
       mustPrint: true,
       result: ["kai"]
+    });
+  });
+
+  it(`Removes an expression result from the pipeline`, async () => {
+    const output = await parse([
+      "10",
+      "-j",
+      "x+1",
+      "-j",
+      "x+2",
+      "-j",
+      "x+3",
+      "-d",
+      "-d"
+    ]);
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [11]
     });
   });
 
@@ -371,7 +389,7 @@ describe("basho", () => {
   });
 
   it(`Evals a debug expression (shell)`, async () => {
-    const output = await execute(`${basho} 10 -d x+11 -j x -e 'echo \${x}'`);
+    const output = await execute(`${basho} 10 -l x+11 -j x -e 'echo \${x}'`);
     output.should.equal("21\n10\n");
   });
 
@@ -420,6 +438,11 @@ describe("basho", () => {
       `${basho} '[[1,2,3], [3,4,5]]' -e 'echo \${x[0]} \${x[1]} \${x[2]}'`
     );
     output.should.equal("1 2 3\n3 4 5\n");
+  });
+
+  it(`Removes an expression result from the pipeline (shell)`, async () => {
+    const output = await execute(`${basho} 10 -j x+1 -j x+2 -j x+3 -d -d`);
+    output.should.equal("11\n");
   });
 
   it(`Receives an array at once (shell)`, async () => {

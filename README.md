@@ -200,6 +200,16 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
+### Rewinding the pipeline
+
+Sometimes you want to ignore the result from the last expression, often while using shell commands.
+The -d option lets you do just that. You can use -d multiple times to rewind multiple expression results.
+
+```bash
+# Prints 11 instead of 16, because of two rewinds
+basho 10 -j x+1 -j x+2 -j x+3 -d -d
+```
+
 ### Promises!
 
 If an JS expression evaluates to a promise, it is resolved before passing it to
@@ -215,12 +225,12 @@ basho -i node-fetch fetch \
  -e echo \${x}
 ```
 
-### Debugging
+### Logging
 
-You can add a -d option anywhere in the pipeline to print the current value.
+You can add a -l option anywhere in the pipeline to print the current value.
 
 ```bash
-basho 10 -d x+11 -j x -e echo \${x}
+basho 10 -l x+11 -j x -e echo \${x}
 ```
 
 ### Advanced

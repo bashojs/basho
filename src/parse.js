@@ -18,8 +18,9 @@ const exec = promisify(child_process.exec);
     -r          reduce
     -a          treat array as a whole
     -i          import a file or module
-    -d          evaluate and print a value for debugging
+    -l          evaluate and log a value to console
     -t          terminate evaluation
+    -d          removes the previous expression result from the pipeline
     --stack     Use input from the result stack
     --nostack   Disables the result stack
 */
@@ -107,9 +108,10 @@ function munch(parts) {
         "-m",
         "-a",
         "-i",
-        "-d",
+        "-l",
         "-q",
         "-t",
+        "-d",
         "--stack",
         "--nostack"
       ].includes(parts[0])
@@ -190,6 +192,20 @@ export default async function parse(
       }
     ],
 
+    /* Removes an expression result from the pipeline */
+    [
+      x => x === "-d",
+      async () =>
+        await parse(
+          args.slice(1),
+          results.slice(-2)[0],
+          results.slice(0, -1),
+          useResultStack,
+          mustPrint,
+          onDebug
+        )
+    ],
+
     /* Enumerate sequence into an array */
     [
       x => x === "-a",
@@ -231,9 +247,9 @@ export default async function parse(
       }
     ],
 
-    /* Debug */
+    /* Logging */
     [
-      x => x === "-d",
+      x => x === "-l",
       async () => {
         const x = await input.toArray();
         const { cursor, expression } = munch(args.slice(1));
@@ -275,7 +291,7 @@ export default async function parse(
               i++;
             }
           }
-        };
+        }
         return await doParse(args.slice(cursor + 1), new Seq(asyncGenerator));
       }
     ],
