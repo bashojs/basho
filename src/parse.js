@@ -30,7 +30,7 @@ class QuotedExpression {
 
 function shellCmd(template, input) {
   const fn = eval(`(x, i) => \`${template}\``);
-  return input.map(input, async (x, i) => await exec(fn(x, i)));
+  return input.map(input, async (x, i) => exec(fn(x, i)));
 }
 
 function evalImport(filename, alias) {
@@ -54,9 +54,16 @@ async function reduce(exp, input, initialValue) {
   return items.reduce((acc, x, i) => fn(acc, x, i), eval(initialValue));
 }
 
-async function evalExpression(exp, input) {
+function evalExpression(exp, _input) {
+  debugger;
+  const input =
+    _input instanceof Seq
+      ? _input
+      : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
+  input.toArray().then(x => {
+    debugger;
+  });
   const code = `(x, i) => (${exp})`;
-  const x = await input.map(eval(code)).toArray();
   return input.map(eval(code));
 }
 
@@ -104,15 +111,8 @@ export default function parse(
     /* Disable result stacking */
     [
       x => x === "--nostack",
-      async () => {
-        return parse(
-          args.slice(1),
-          await input,
-          results,
-          true,
-          mustPrint,
-          onDebug
-        );
+      () => {
+        return parse(args.slice(1), results, true, mustPrint, onDebug);
       }
     ],
 
@@ -130,11 +130,11 @@ export default function parse(
     /* Execute shell command */
     [
       x => x === "-e",
-      async () => {
+      () => {
         const { cursor, expression } = munch(args.slice(1));
         return doParse(
           args.slice(cursor + 1),
-          await shellCmd(toExpressionString(expression), input)
+          shellCmd(toExpressionString(expression), input)
         );
       }
     ],
@@ -142,15 +142,7 @@ export default function parse(
     /* Print */
     [
       x => x === "-p",
-      async () =>
-        parse(
-          args.slice(1),
-          await input,
-          results,
-          useResultStack,
-          false,
-          onDebug
-        )
+      () => parse(args.slice(1), input, results, useResultStack, false, onDebug)
     ],
 
     /* Named Export */
@@ -163,10 +155,7 @@ export default function parse(
     ],
 
     /* Treat input as a whole array */
-    [
-      x => x === "-a",
-      async () => doParse(args.slice(1), Seq.of(await input.toArray()))
-    ],
+    [x => x === "-a", () => doParse(args.slice(1), input.toArray())],
 
     /* Filter */
     [
@@ -200,11 +189,11 @@ export default function parse(
     /* Debug */
     [
       x => x === "-d",
-      async () => {
+      () => {
         const { cursor, expression } = munch(args.slice(1));
-        const fn = eval(`async (x, i) => (${expression})`);
+        const fn = eval(`(x, i) => (${expression})`);
         const newSeq = Seq.of(input).map(async (x, i) => {
-          const res = await fn(x, i);
+          const res = fn(x, i);
           onDebug(x);
           return x;
         });
@@ -215,11 +204,11 @@ export default function parse(
     /* JS expressions */
     [
       x => x === "-j",
-      async () => {
+      () => {
         const { cursor, expression } = munch(args.slice(1));
         return doParse(
           args.slice(cursor + 1),
-          await evalExpression(toExpressionString(expression), input)
+          evalExpression(toExpressionString(expression), input)
         );
       }
     ],
@@ -227,18 +216,17 @@ export default function parse(
     /* Everything else as JS expressions */
     [
       x => true,
-      async () => {
+      () => {
         const { cursor, expression } = munch(args);
-        const input = await eval(`(${toExpressionString(expression)})`);
         return doParse(
-          args.slice(cursor),
-          Seq.of(Array.isArray(input) ? input : [input])
+          args.slice(cursor + 1),
+          evalExpression(toExpressionString(expression), input)
         );
       }
     ]
   ];
 
-  async function doParse(args, input) {
+  function doParse(args, input) {
     return parse(
       args,
       input,
@@ -248,8 +236,6 @@ export default function parse(
       onDebug
     );
   }
-
-  debugger;
 
   return args.length
     ? cases.find(([predicate]) => predicate(args[0]))[1]()

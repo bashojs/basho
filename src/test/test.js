@@ -18,6 +18,15 @@ function execute(cmd) {
   });
 }
 
+let debugMessages;
+function resetDebugMessages() {
+  debugMessages = [];
+}
+
+function onDebug(msg) {
+  debugMessages.push(msg);
+}
+
 async function toResult(output) {
   debugger;
   return { mustPrint: output.mustPrint, result: await output.result.toArray() };
@@ -42,8 +51,11 @@ describe("basho", () => {
   // });
 
   // it(`Evals a template string`, async () => {
-  //   const output = await parse(["10", "-j", "`number:${x}`"]);
-  //   (await toResult(output)).should.deepEqual({ mustPrint: true, result: ["number:10"] });
+  //   const output = await parse(["666", "-j", "`That number is ${x}`"]);
+  //   (await toResult(output)).should.deepEqual({
+  //     mustPrint: true,
+  //     result: ["That number is 666"]
+  //   });
   // });
 
   // it(`Quotes a string`, async () => {
@@ -63,7 +75,7 @@ describe("basho", () => {
 
   // it(`Evals an array`, async () => {
   //   const output = await parse(["[1,2,3,4]"]);
-  //   (await toResult(output)).should.deepEqual({ mustPrint: true, result: [1, 2, 3, 4] });
+  //   (await toResult(output)).should.deepEqual({ mustPrint: true, result: [[1, 2, 3, 4]] });
   // });
 
   // it(`Evals an object`, async () => {
@@ -75,24 +87,36 @@ describe("basho", () => {
   //   const output = await parse(["[{ name: 'kai' }, { name: 'niki' }]"]);
   //   (await toResult(output)).should.deepEqual({
   //     mustPrint: true,
-  //     result: [{ name: "kai" }, { name: "niki" }]
+  //     result: [[{ name: "kai" }, { name: "niki" }]]
   //   });
   // });
 
   // it(`Unset the mustPrint flag`, async () => {
   //   const output = await parse(["-p", "[1,2,3,4]"]);
-  //   (await toResult(output)).should.deepEqual({ mustPrint: false, result: [1, 2, 3, 4] });
+  //   (await toResult(output)).should.deepEqual({ mustPrint: false, result: [[1, 2, 3, 4]] });
   // });
 
-  // it(`Pipes a result into the next expression`, async () => {
-  //   const output = await parse(["[1,2,3,4]", "-j", "x**2"]);
-  //   (await toResult(output)).should.deepEqual({ mustPrint: true, result: [1, 4, 9, 16] });
-  // });
-
-  it(`Evals a debug expression`, async () => {
-    const output = await parse(["[1,2,3,4]", "-d", "x+10", "-j", "x**2"]);
-    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [1, 4, 9, 16] });
+  it(`Pipes a result into the next expression`, async () => {
+    const output = await parse(["[1,2,3,4]", "-j", "x**2"]);
+    (await toResult(output)).should.deepEqual({ mustPrint: true, result: [[1, 4, 9, 16]] });
   });
+
+  // it(`Evals a debug expression`, async () => {
+  //   resetDebugMessages();
+  //   const output = await parse(
+  //     ["[1,2,3,4]", "-d", "x+10", "-j", "x**2"],
+  //     "",
+  //     [],
+  //     true,
+  //     true,
+  //     onDebug
+  //   );
+  //   (await toResult(output)).should.deepEqual({
+  //     mustPrint: true,
+  //     result: [1, 4, 9, 16]
+  //   });
+  //   debugMessages.should.deepEqual([1, 2, 3, 4, 1, 2, 3, 4]);
+  // });
 
   // it(`Pipes an array of arrays`, async () => {
   //   const output = await parse(["[[1,2,3], [2,3,4]]", "-j", "x[0]+10"]);
