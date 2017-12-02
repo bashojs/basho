@@ -75,7 +75,7 @@ evaluated.
 
 ```bash
 # Prints 10 and 20. The rest are never evaluated.
-basho [1,2,3,4,5] -t "x>2" -j x*10
+basho [1,2,3,4,5] -t 'x>2' -j x*10
 ```
 
 ### Shell Commands
@@ -84,6 +84,8 @@ Execute shell commands with the -e option. The shell command is expanded as a JS
 template string, with the variable ‘x’ holding the input from the preceding
 command in the pipeline. Remember to quote or escape characters which hold a
 special meaning in your shell, such as $, >, <, |, () etc.
+
+Tip: Single quotes are far easier to work with, since double quotes will try to expand $variables inside it.
 
 ```bash
 # Prints 1000. Escape the $.
@@ -95,7 +97,7 @@ output becomes the input for the next command.
 
 ```bash
 # echo 110 - which is (10^2) + 10
-basho 10 -j x**2 -e echo \${x} -j "parseInt(x)+10" -e echo \${x}
+basho 10 -j x**2 -e echo \${x} -j 'parseInt(x)+10' -e echo \${x}
 ```
 
 basho can receive input via stdin. As always, ‘x’ represents the input.
@@ -125,10 +127,10 @@ pipeline.
 module.exports = function square(n) { return n ** 2; }
 
 # prints 100. Imports square.js as sqr.
-basho 10 -i square.js sqr -j "sqr(x)"
+basho 10 -i square.js sqr -j 'sqr(x)'
 
 # Prints 40000. Does sqr(10), then adds 100, then sqr(200)
-basho 10 -i square.js sqr -j "sqr(x)" -j x+100 -j "sqr(x)"
+basho 10 -i square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'
 ```
 
 ### Arrays, Filter and Reduce
@@ -144,21 +146,21 @@ basho [1,2,3,4] -e echo \${x}
 An input can also be an object, which you can expand in the template string.
 
 ```bash
-basho "{ name: 'jes', age: 100 }" -e echo \${x.name}, \${x.age}
+basho '{ name: "jes", age: 100 }' -e echo \${x.name}, \${x.age}
 ```
 
 You can use an Array of objects.
 
 ```bash
 # echo kai; echo niki
-basho "[{name:'kai'}, {name:'niki'}]" -e echo \${x.name}
+basho '[{name:"kai"}, {name: "niki"}]' -e echo \${x.name}
 ```
 
 Array of arrays, sure.
 
 ```bash
 # echo 1 2 3; echo 3 4 5
-basho "[[1,2,3], [3,4,5]]" -e echo \${x[0]} \${x[1]} \${x[2]}
+basho '[[1,2,3], [3,4,5]]' -e echo \${x[0]} \${x[1]} \${x[2]}
 ```
 
 A command can choose to receive the entire array at once with the -a option.
@@ -172,7 +174,7 @@ Filter arrays with the -f option.
 
 ```bash
 # echo 3; echo 4
-basho [1,2,3,4] -f x>2 -e echo \${x}
+basho [1,2,3,4] -f 'x>2' -e echo \${x}
 ```
 
 Reduce with the -r option. The first parameter is the lambda, the second
@@ -195,7 +197,7 @@ variable ‘i’ in lambdas and shell command templates.
 
 ```bash
 # echo a1; echo b2; echo c3
-basho "['a','b','c']" -e echo \${x}\${i}
+basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
 ### Promises!
@@ -205,11 +207,11 @@ the next command in the pipeline.
 
 ```bash
 # Prints 10
-basho "Promise.resolve(10)" -e echo \${x}
+basho 'Promise.resolve(10)' -e echo \${x}
 
 # Something more useful
 basho -i node-fetch fetch \
- -j "fetch('http://oaks.nvg.org/basho.html')" \
+ -j 'fetch("http://oaks.nvg.org/basho.html")' \
  -e echo \${x}
 ```
 
@@ -246,7 +248,7 @@ alias for basho in .bashrc (or .bash_profile on a Mac).
 alias basho='basho -i node-fetch fetch'
 
 # now you could just do
-basho "fetch('example.com/weather')" -j x.temperature
+basho 'fetch("https://example.com/weather")' -j x.temperature
 ```
 
 ## Real world examples
@@ -254,13 +256,13 @@ basho "fetch('example.com/weather')" -j x.temperature
 Count the number of occurences of a word in a string or file.
 
 ````bash
-echo hello world hello hello | basho "(x.match(/hello/g) || []).length"```
+echo hello world hello hello | basho '(x.match(/hello/g) || []).length'
 ````
 
 Get the weather in bangalore
 
 ```bash
-echo Bangalore,in | basho "fetch(\`http://api.openweathermap.org/data/2.5/weather?q=\${x}&appid=YOURAPIKEY&units=metric\`)" -j "x.json()" -j x.main.temp
+echo Bangalore,in | basho 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
 ```
 
 ## That's it

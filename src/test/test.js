@@ -366,18 +366,18 @@ describe("basho", () => {
   });
 
   it(`Prints a string via shell echo (shell)`, async () => {
-    const output = await execute(`${basho} 10 -e echo \\\${x}`);
+    const output = await execute(`${basho} 10 -e 'echo \${x}'`);
     output.should.equal("10\n");
   });
 
   it(`Evals a debug expression (shell)`, async () => {
-    const output = await execute(`${basho} 10 -d x+11 -j x -e echo \\\${x}`);
+    const output = await execute(`${basho} 10 -d x+11 -j x -e 'echo \${x}'`);
     output.should.equal("21\n10\n");
   });
 
   it(`Imports a file (shell)`, async () => {
     const output = await execute(
-      `${basho} 10 -i ./dist/test/square.js sqr -j "sqr(x)"`
+      `${basho} 10 -i ./dist/test/square.js sqr -j 'sqr(x)'`
     );
     output.should.equal("100\n");
   });
@@ -386,80 +386,80 @@ describe("basho", () => {
     const output = await execute(
       `${
         basho
-      } 10 -i ./dist/test/square.js sqr -j "sqr(x)" -j x+100 -j "sqr(x)"`
+      } 10 -i ./dist/test/square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
     );
     output.should.equal("40000\n");
   });
 
   it(`Can accept a piped argument (shell)`, async () => {
-    const output = await execute(`echo 10 | ${basho} -e echo \\\${x}`);
+    const output = await execute(`echo 10 | ${basho} -e 'echo \${x}'`);
     output.should.equal("10\n");
   });
 
   it(`Calls a subsequent expression for each array item (shell)`, async () => {
-    const output = await execute(`${basho} [1,2,3,4] -e echo N\\\${x}`);
+    const output = await execute(`${basho} [1,2,3,4] -e 'echo N\${x}'`);
     output.should.equal("N1\nN2\nN3\nN4\n");
   });
 
   it(`Handles objects (shell)`, async () => {
     const output = await execute(
-      `${basho} "{ name: 'jes', age: 100 }" -e echo \\\${x.name}, \\\${x.age}`
+      `${basho} '{ name: "jes", age: 100 }' -e 'echo \${x.name}, \${x.age}'`
     );
     output.should.equal("jes, 100\n");
   });
 
   it(`Handles an array of Objects (shell)`, async () => {
     const output = await execute(
-      `${basho} "[{name:'kai'}, {name:'niki'}]" -e echo \\\${x.name}`
+      `${basho} '[{name: "kai"}, {name:"niki"}]' -e 'echo \${x.name}'`
     );
     output.should.equal("kai\nniki\n");
   });
 
   it(`Handles an array of arrays (shell)`, async () => {
     const output = await execute(
-      `${basho} "[[1,2,3], [3,4,5]]" -e echo \\\${x[0]} \\\${x[1]} \\\${x[2]}`
+      `${basho} '[[1,2,3], [3,4,5]]' -e 'echo \${x[0]} \${x[1]} \${x[2]}'`
     );
     output.should.equal("1 2 3\n3 4 5\n");
   });
 
   it(`Receives an array at once (shell)`, async () => {
     const output = await execute(
-      `${basho} [1,2,3,4] -a x.length -e echo \\\${x}`
+      `${basho} [1,2,3,4] -a x.length -e 'echo \${x}'`
     );
     output.should.equal("4\n");
   });
 
   it(`Filters an array (shell)`, async () => {
     const output = await execute(
-      `${basho} [1,2,3,4] -f "x\>2" -e echo \\\${x}`
+      `${basho} [1,2,3,4] -f 'x\>2' -e 'echo \${x}'`
     );
     output.should.equal("3\n4\n");
   });
 
   it(`Reduces an array (shell)`, async () => {
     const output = await execute(
-      `${basho} [1,2,3,4] -r acc+x 0 -e echo \\\${x}`
+      `${basho} [1,2,3,4] -r acc+x 0 -e 'echo \${x}'`
     );
     output.should.equal("10\n");
   });
 
   it(`Flatmaps (shell)`, async () => {
     const output = await execute(
-      `${basho} [1,2,3] -m [x+10, x+20] -e echo \\\${x}`
+      `${basho} [1,2,3] -m [x+10, x+20] -e 'echo \${x}'`
     );
     output.should.equal("11\n21\n12\n22\n13\n23\n");
   });
 
   it(`Can access array indexes (shell)`, async () => {
     const output = await execute(
-      `${basho} "['a','b','c']" -e echo \\\${x}\\\${i}`
+      `${basho} '["a","b","c"]' -e 'echo \${x}\${i}'`
     );
     output.should.equal("a0\nb1\nc2\n");
   });
 
   it(`Can extend the pipeline further after a shell command (shell)`, async () => {
     const output = await execute(
-      `${basho} 10 -j x**2 -e echo \\\${x} -j "parseInt(x)+10" -e echo \\\${x}`
+      `${basho} 10 -j x**2 -e 'echo \${x}' -j 'parseInt(x)+10' -e 'echo \${x}'`
     );
     output.should.equal("110\n");
   });
@@ -470,7 +470,7 @@ describe("basho", () => {
   });
 
   it(`Resolves promises (shell)`, async () => {
-    const output = await execute(`${basho} "Promise.resolve(10)" -j x+10`);
+    const output = await execute(`${basho} 'Promise.resolve(10)' -j x+10`);
     output.should.equal("20\n");
   });
 
@@ -482,16 +482,14 @@ describe("basho", () => {
   });
 
   it(`Terminates based on a predicate (shell)`, async () => {
-    const output = await execute(
-      `${basho} "[1,2,3,4]" -t "x\>2" -j "x*10"`
-    );
+    const output = await execute(`${basho} '[1,2,3,4]' -t 'x>2' -j 'x*10'`);
 
     output.should.equal("10\n20\n");
   });
 
   it(`Terminates based on a predicate with Promises in the pipeline (shell)`, async () => {
     const output = await execute(
-      `${basho} "[Promise.resolve(1),2,3,4]" -t "x\>2" -j "x*10"`
+      `${basho} '[Promise.resolve(1),2,3,4]' -t 'x>2' -j 'x*10'`
     );
 
     output.should.equal("10\n20\n");
