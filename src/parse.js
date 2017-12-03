@@ -19,6 +19,7 @@ const exec = promisify(child_process.exec);
     -a          treat array as a whole
     -i          import a file or module
     -l          evaluate and log a value to console
+    -w          Same as log, but without the newline
     -t          terminate evaluation
     -d          removes the previous expression result from the pipeline
     --stack     Use input from the result stack
@@ -109,6 +110,7 @@ function munch(parts) {
         "-a",
         "-i",
         "-l",
+        "-w",
         "-q",
         "-t",
         "-d",
@@ -138,13 +140,14 @@ export default async function parse(
   results = [],
   useResultStack = true,
   mustPrint = true,
-  onDebug
+  onLog,
+  onWrite
 ) {
   const cases = [
     /* Disable result stacking */
     [
       x => x === "--nostack",
-      async () => await parse(args.slice(1), results, true, mustPrint, onDebug)
+      async () => await parse(args.slice(1), results, true, mustPrint, onLog, onWrite)
     ],
 
     /* Use results from the stack */
@@ -179,7 +182,7 @@ export default async function parse(
           results,
           useResultStack,
           false,
-          onDebug
+          onLog,onWrite
         )
     ],
 
@@ -202,7 +205,8 @@ export default async function parse(
           results.slice(0, -1),
           useResultStack,
           mustPrint,
-          onDebug
+          onLog,
+          onWrite
         )
     ],
 
@@ -256,7 +260,23 @@ export default async function parse(
         const fn = await eval(`(x, i) => (${expression})`);
         const newSeq = Seq.of(input).map(async (x, i) => {
           const res = await fn(x, i);
-          onDebug(res);
+          onLog(res);
+          return x;
+        });
+        return await doParse(args.slice(cursor + 1), newSeq);
+      }
+    ],
+
+    /* Writing */
+    [
+      x => x === "-w",
+      async () => {
+        const x = await input.toArray();
+        const { cursor, expression } = munch(args.slice(1));
+        const fn = await eval(`(x, i) => (${expression})`);
+        const newSeq = Seq.of(input).map(async (x, i) => {
+          const res = await fn(x, i);
+          onWrite(res);
           return x;
         });
         return await doParse(args.slice(cursor + 1), newSeq);
@@ -316,7 +336,8 @@ export default async function parse(
       useResultStack ? results.concat([input]) : results,
       useResultStack,
       mustPrint,
-      onDebug
+      onLog,
+      onWrite
     );
   }
 

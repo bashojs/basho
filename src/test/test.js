@@ -18,13 +18,22 @@ function execute(cmd) {
   });
 }
 
-let debugMessages;
-function resetDebugMessages() {
-  debugMessages = [];
+let logMessages;
+function resetLogMessages() {
+  logMessages = [];
 }
 
-function onDebug(msg) {
-  debugMessages.push(msg);
+function onLog(msg) {
+  logMessages.push(msg);
+}
+
+let writeMessages;
+function resetWriteMessages() {
+  writeMessages = [];
+}
+
+function onWrite(msg) {
+  writeMessages.push(msg);
 }
 
 async function toResult(output) {
@@ -125,20 +134,38 @@ describe("basho", () => {
   });
 
   it(`Evals and logs an expression`, async () => {
-    resetDebugMessages();
+    resetLogMessages();
     const output = await parse(
       ["[1,2,3,4]", "-l", "x+10", "-j", "x**2"],
       undefined,
       [],
       true,
       true,
-      onDebug
+      onLog
     );
     (await toResult(output)).should.deepEqual({
       mustPrint: true,
       result: [1, 4, 9, 16]
     });
-    debugMessages.should.deepEqual([11, 12, 13, 14]);
+    logMessages.should.deepEqual([11, 12, 13, 14]);
+  });
+
+  it(`Evals and writes an expression`, async () => {
+    resetWriteMessages();
+    const output = await parse(
+      ["[1,2,3,4]", "-w", "x+10", "-j", "x**2"],
+      undefined,
+      [],
+      true,
+      true,
+      onLog,
+      onWrite
+    );
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [1, 4, 9, 16]
+    });
+    writeMessages.should.deepEqual([11, 12, 13, 14]);
   });
 
   it(`Pipes an array of arrays`, async () => {
@@ -388,9 +415,14 @@ describe("basho", () => {
     output.should.equal("10\n");
   });
 
-  it(`Evals a debug expression (shell)`, async () => {
+  it(`Evals and logs an expression (shell)`, async () => {
     const output = await execute(`${basho} 10 -l x+11 -j x -e 'echo \${x}'`);
     output.should.equal("21\n10\n");
+  });
+
+  it(`Evals and writes an expression (shell)`, async () => {
+    const output = await execute(`${basho} 10 -w x+11 -j x -e 'echo \${x}'`);
+    output.should.equal("2110\n");
   });
 
   it(`Imports a file (shell)`, async () => {

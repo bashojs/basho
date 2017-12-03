@@ -24,7 +24,8 @@ if (process.argv.length > 2) {
           [],
           true,
           true,
-          x => console.log(x)
+          x => console.log(x),
+          x => process.stdout.write(x.toString())
         );
         if (output.mustPrint) {
           for await (const item of output.result) {
