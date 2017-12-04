@@ -37,7 +37,8 @@ function onWrite(msg) {
 }
 
 async function toResult(output) {
-  return { mustPrint: output.mustPrint, result: await output.result.toArray() };
+  const result = await output.result.toArray();
+  return { mustPrint: output.mustPrint, result };
 }
 
 const basho = `node ${path.resolve("./dist/basho.js")}`;
@@ -355,6 +356,66 @@ describe("basho", () => {
     });
   });
 
+  it(`Creates a named result but does not seek`, async () => {
+    const output = await parse([
+      "[10,20,30,40]",
+      "-j",
+      "x+1",
+      "-j",
+      "x+2",
+      "-n",
+      "add2",
+      "-j",
+      "x+10"
+    ]);
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [23, 33, 43, 53]
+    });
+  });
+
+  it(`Creates a named result and seeks`, async () => {
+    const output = await parse([
+      "[10,20,30,40]",
+      "-j",
+      "x+1",
+      "-j",
+      "x+2",
+      "-n",
+      "add2",
+      "-j",
+      "x*100",
+      "-s",
+      "add2",
+      "-j",
+      "x+10"
+    ]);
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [23, 33, 43, 53]
+    });
+  });
+
+  it(`Combines named results`, async () => {
+    const output = await parse([
+      "[10,20,30,40]",
+      "-j",
+      "x+1",
+      "-n",
+      "add1",
+      "-j",
+      "x+2",
+      "-n",
+      "add2",
+      "-c",
+      "add1,add2"
+    ]);
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [[11, 13], [21, 23], [31, 33], [41, 43]]
+    });
+  });
+
   it(`Prints a number (shell)`, async () => {
     const output = await execute(`${basho} -j 10`);
     output.should.equal("10\n");
@@ -548,6 +609,30 @@ describe("basho", () => {
     );
 
     output.should.equal("10\n20\n");
+  });
+
+  it(`Creates a named result but does not seek (shell)`, async () => {
+      const output = await execute(
+        `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x+10`
+      );
+
+      output.should.equal("23\n33\n43\n53\n");
+  });
+
+  it(`Creates a named result and seeks (shell)`, async () => {
+    const output = await execute(
+      `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x*100 -s add2 -j x+10`
+    );
+
+    output.should.equal("23\n33\n43\n53\n");
+  });
+
+  it(`Combines named results (shell)`, async () => {
+    const output = await execute(
+      `${basho} [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2`
+    );
+
+    output.should.equal("[ 11, 13 ]\n[ 21, 23 ]\n[ 31, 33 ]\n[ 41, 43 ]\n");
   });
 
   it(`Prints the correct version with -v`, async () => {

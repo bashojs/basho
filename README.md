@@ -133,10 +133,10 @@ basho 10 -i square.js sqr -j 'sqr(x)'
 basho 10 -i square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'
 ```
 
-### Arrays, Filter and Reduce
+### Arrays, map, filter, flatMap and reduce
 
 If the input to an expression is an array, the subsequent expression or command
-is executed for each item in the array.
+is executed for each item in the array. It's the equivalent of a map() function.
 
 ```bash
 # echo 1; echo 2; echo 3; echo 4
@@ -185,11 +185,17 @@ parameter is the initial value of the accumulator.
 basho [1,2,3,4] -r acc+x 0 -e echo \${x}
 ```
 
-There's also flatMap, the -m option
+There's also flatMap, the -m option.
 
 ```bash
 # Returns [11, 21, 12, 22, 13, 23]
 basho [1,2,3] -m [x+10,x+20]
+```
+
+A flatMap can be used to flatten an array of arrays as well.
+```bash
+# Returns 1, 2, 3, 4
+basho [[1,2],[2,3]] -m x
 ```
 
 Btw, you could also access an array index in the template literal as the
@@ -208,6 +214,22 @@ The -d option lets you do just that. You can use -d multiple times to rewind mul
 ```bash
 # Prints 11 instead of 16, because of two rewinds
 basho 10 -j x+1 -j x+2 -j x+3 -d -d
+```
+
+### Named expressions and Combining expressions
+
+The -n option gives a name to the result of the expression, so that you can recall (seek) it later with the -s option.
+
+```
+# Prints 121; instead of (120*50) + 1
+basho 10 -j x*10 -j x+20 -n add20 -j x*50 -s add20 -j x+1
+```
+
+The -c option allows you to combine/multiplex streams into an sequence of arrays.
+
+```
+# Return [11, 13], [21, 23], [31, 33], [41, 43]
+basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 ```
 
 ### Promises!
