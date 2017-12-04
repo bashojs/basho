@@ -46,43 +46,53 @@ class NamedSequence {
 }
 
 async function evalExpression(exp, _input) {
-  return typeof _input === "undefined" || _input === ""
-    ? await (async () => {
-        const code = `async () => (${exp})`;
-        const input = await eval(code)();
-        return Array.isArray(input) ? Seq.of(input) : Seq.of([input]);
-      })()
-    : await (async () => {
-        const code = `async (x, i) => (${exp})`;
-        const input =
-          _input instanceof Seq
-            ? _input
-            : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
-        return input.map(await eval(code));
-      })();
+  try {
+    return typeof _input === "undefined" || _input === ""
+      ? await (async () => {
+          const code = `async () => (${exp})`;
+          const input = await eval(code)();
+          return Array.isArray(input) ? Seq.of(input) : Seq.of([input]);
+        })()
+      : await (async () => {
+          const code = `async (x, i) => (${exp})`;
+          const input =
+            _input instanceof Seq
+              ? _input
+              : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
+          return input.map(await eval(code));
+        })();
+  } catch (ex) {
+    console.log(`basho failed to evaluate expression: ${exp}.`);
+    throw ex;
+  }
 }
 
 async function shellCmd(template, input) {
-  const fn = await eval(`async (x, i) => \`${template}\``);
-  return typeof input === "undefined" || input === ""
-    ? await (async () => {
-        const shellResult = await exec(await fn());
-        const items = shellResult
-          .split("\n")
-          .filter(x => x !== "")
-          .map(x => x.replace(/\n$/, ""));
-        return Seq.of(items);
-      })()
-    : (() => {
-        return input.map(async (x, i) => {
-          const shellResult = await exec(await fn(x, i));
+  try {
+    const fn = await eval(`async (x, i) => \`${template}\``);
+    return typeof input === "undefined" || input === ""
+      ? await (async () => {
+          const shellResult = await exec(await fn());
           const items = shellResult
             .split("\n")
             .filter(x => x !== "")
             .map(x => x.replace(/\n$/, ""));
-          return items.length === 1 ? items[0] : items;
-        });
-      })();
+          return Seq.of(items);
+        })()
+      : (() => {
+          return input.map(async (x, i) => {
+            const shellResult = await exec(await fn(x, i));
+            const items = shellResult
+              .split("\n")
+              .filter(x => x !== "")
+              .map(x => x.replace(/\n$/, ""));
+            return items.length === 1 ? items[0] : items;
+          });
+        })();
+  } catch (ex) {
+    console.log(`basho failed to evaluate shell command: ${template}.`);
+    throw ex;
+  }
 }
 
 function evalImport(filename, alias) {
