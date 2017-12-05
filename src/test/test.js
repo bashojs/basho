@@ -3,7 +3,7 @@ import should from "should";
 import child_process from "child_process";
 import promisify from "nodefunc-promisify";
 import sourceMapSupport from "source-map-support";
-import parse from "../parse";
+import { parse } from "../parse";
 import path from "path";
 import { log } from "util";
 
@@ -416,6 +416,20 @@ describe("basho", () => {
     });
   });
 
+  it(`Captures an error`, async () => {
+    const output = await parse([
+      "['a,b', 10, 'c,d']",
+      "-j",
+      "x.split(',')",
+      "--error",
+      "'skipped'"
+    ]);
+    (await toResult(output)).should.deepEqual({
+      mustPrint: true,
+      result: [["a", "b"], "skipped", ["c", "d"]]
+    });
+  });
+
   it(`Prints a number (shell)`, async () => {
     const output = await execute(`${basho} -j 10`);
     output.should.equal("10\n");
@@ -612,11 +626,11 @@ describe("basho", () => {
   });
 
   it(`Creates a named result but does not seek (shell)`, async () => {
-      const output = await execute(
-        `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x+10`
-      );
+    const output = await execute(
+      `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x+10`
+    );
 
-      output.should.equal("23\n33\n43\n53\n");
+    output.should.equal("23\n33\n43\n53\n");
   });
 
   it(`Creates a named result and seeks (shell)`, async () => {
@@ -633,6 +647,14 @@ describe("basho", () => {
     );
 
     output.should.equal("[ 11, 13 ]\n[ 21, 23 ]\n[ 31, 33 ]\n[ 41, 43 ]\n");
+  });
+
+  it(`Captures an error (shell)`, async () => {
+    const output = await execute(
+      `${basho} '["a,b", 10, "c,d"]' -j 'x.split(",")' --error '"skipped"'`
+    );
+
+    output.should.equal("[ 'a', 'b' ]\nskipped\n[ 'c', 'd' ]\n");
   });
 
   it(`Prints the correct version with -v`, async () => {

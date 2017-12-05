@@ -438,9 +438,9 @@ json5@^0.5.1:
   version "0.5.1"
   resolved "https://registry.yarnpkg.com/json5/-/json5-0.5.1.tgz#1eade7acc012034ad84e2396767ead9fa5495821"
 
-lazily-async@^0.0.17:
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/lazily-async/-/lazily-async-0.0.17.tgz#03718b49b01c6560f0b98aa95345e79a0afc4590"
+lazily-async@^0.0.18:
+  version "0.0.18"
+  resolved "https://registry.yarnpkg.com/lazily-async/-/lazily-async-0.0.18.tgz#abdfc5d34c8e99186cd061cf13ba9e4e51cad73b"
 
 lodash@^4.17.4:
   version "4.17.4"

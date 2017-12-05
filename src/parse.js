@@ -7,26 +7,28 @@ import { log } from "util";
 
 const exec = promisify(child_process.exec);
 
+// prettier-ignore
 /* Options: */
 const options = [
-  "-a", //            treat array as a whole
-  "-c", // n1,n2,n3   combine a named stages
-  "-d", //            removes the previous result from the pipeline
-  "-e", //            shell command
-  "-f", //            filter
-  "-i", //            import a file or module
-  "-j", //            JS expression
-  "-l", //            evaluate and log a value to console
-  "-m", //            flatMap
-  "-n", //            Named result
-  "-q", //            quote expression as string
-  "-p", //            print
-  "-r", //            reduce
-  "-s", //            recall (seek) a named result
-  "-t", //            terminate evaluation
-  "-w", //            Same as log, but without the newline
-  "--stack", // n          Use input from the result stack
-  "--nostack" //            Disables the result stack
+  "-a",         //            treat array as a whole
+  "-c",         // n1,n2,n3   combine a named stages
+  "-d",         //            removes the previous result from the pipeline
+  "-e",         //            shell command
+  "-f",         //            filter
+  "-i",         //            import a file or module
+  "-j",         //            JS expression
+  "-l",         //            evaluate and log a value to console
+  "-m",         //            flatMap
+  "-n",         //            Named result
+  "-q",         //            quote expression as string
+  "-p",         //            print
+  "-r",         //            reduce
+  "-s",         //            recall (seek) a named result
+  "-t",         //            terminate evaluation
+  "-w",         //            Same as log, but without the newline
+  "--error",    //            Error handling
+  "--stack",    // n          Use input from the result stack
+"--nostack"     //            Disables the result stack
 ];
 
 class QuotedExpression {
@@ -45,54 +47,95 @@ class NamedSequence {
   }
 }
 
-async function evalExpression(exp, _input) {
-  try {
-    return typeof _input === "undefined" || _input === ""
-      ? await (async () => {
-          const code = `async () => (${exp})`;
-          const input = await eval(code)();
-          return Array.isArray(input) ? Seq.of(input) : Seq.of([input]);
-        })()
-      : await (async () => {
-          const code = `async (x, i) => (${exp})`;
-          const input =
-            _input instanceof Seq
-              ? _input
-              : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
-          return input.map(await eval(code));
-        })();
-  } catch (ex) {
-    console.log(`basho failed to evaluate expression: ${exp}.`);
-    throw ex;
+export class PipelineError {
+  constructor(message, error) {
+    this.message = message;
+    this.error = error;
   }
 }
 
-async function shellCmd(template, input) {
+async function evalWithCatch(message, exp) {
   try {
-    const fn = await eval(`async (x, i) => \`${template}\``);
-    return typeof input === "undefined" || input === ""
-      ? await (async () => {
+    const fn = await eval(exp);
+    return async function() {
+      try {
+        return await fn.apply(undefined, arguments);
+      } catch (ex) {
+        return new PipelineError(message, ex);
+      }
+    };
+  } catch (ex) {
+    return () => {
+      return new PipelineError(message, ex);
+    };
+  }
+}
+
+async function evalExpression(exp, _input) {
+  return typeof _input === "undefined" || _input === ""
+    ? await (async () => {
+        const code = `async () => (${exp})`;
+        const input = await (await evalWithCatch(
+          `basho failed to evaluate expression: ${exp}.`,
+          code
+        ))();
+        return Array.isArray(input) ? Seq.of(input) : Seq.of([input]);
+      })()
+    : await (async () => {
+        const code = `async (x, i) => (${exp})`;
+        const input =
+          _input instanceof Seq
+            ? _input
+            : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
+        return input.map(
+          await evalWithCatch(
+            `basho failed to evaluate expression: ${exp}.`,
+            code
+          )
+        );
+      })();
+}
+
+async function shellCmd(template, input) {
+  const fn = await evalWithCatch(
+    `basho failed to evaluate command template: ${template}.`,
+    `async (x, i) => \`${template}\``
+  );
+  return typeof input === "undefined" || input === ""
+    ? await (async () => {
+        try {
           const shellResult = await exec(await fn());
           const items = shellResult
             .split("\n")
             .filter(x => x !== "")
             .map(x => x.replace(/\n$/, ""));
           return Seq.of(items);
-        })()
-      : (() => {
-          return input.map(async (x, i) => {
+        } catch (ex) {
+          return Seq.of([
+            new PipelineError(
+              `basho failed to execute shell command: ${template}`,
+              ex
+            )
+          ]);
+        }
+      })()
+    : (() => {
+        return input.map(async (x, i) => {
+          try {
             const shellResult = await exec(await fn(x, i));
             const items = shellResult
               .split("\n")
               .filter(x => x !== "")
               .map(x => x.replace(/\n$/, ""));
             return items.length === 1 ? items[0] : items;
-          });
-        })();
-  } catch (ex) {
-    console.log(`basho failed to evaluate shell command: ${template}.`);
-    throw ex;
-  }
+          } catch (ex) {
+            return new PipelineError(
+              `basho failed to execute shell command: ${template}`,
+              ex
+            );
+          }
+        });
+      })();
 }
 
 function evalImport(filename, alias) {
@@ -105,20 +148,37 @@ function evalImport(filename, alias) {
 
 async function filter(exp, input) {
   const code = `async (x, i) => (${exp})`;
-  const fn = await eval(code);
+  const fn = await evalWithCatch(
+    `basho failed to evaluate expression: ${exp}.`,
+    code
+  );
   return input.filter(fn);
-}
-
-async function reduce(exp, input, initialValue) {
-  const code = `async (acc, x, i) => (${exp})`;
-  const fn = await eval(code);
-  return await input.reduce(fn, await eval(initialValue));
 }
 
 async function flatMap(exp, input) {
   const code = `async (x, i) => (${exp})`;
-  const fn = await eval(code);
+  const fn = await evalWithCatch(
+    `basho failed to evaluate expression: ${exp}.`,
+    code
+  );
   return input.flatMap(fn);
+}
+
+async function reduce(exp, input, initialValue) {
+  const code = `async (acc, x, i) => (${exp})`;
+  const fn = await evalWithCatch(
+    `basho failed to evaluate expression: ${exp}.`,
+    code
+  );
+  const initialValueCode = `async () => (${initialValue})`;
+  const getInitialValue = await evalWithCatch(
+    `basho failed to evaluate expression: ${initialValue}.`,
+    initialValueCode
+  );
+  const x = await getInitialValue()
+  const res = await input.reduce(fn, getInitialValue());
+  debugger;
+  return res;
 }
 
 function munch(parts) {
@@ -149,7 +209,21 @@ function findSequence(list, name) {
   return list.find(s => s instanceof NamedSequence && s.name === name).seq;
 }
 
-export default async function parse(
+async function attachErrorHandler(input, args) {
+  async function* gen() {
+    for await (const item of input) {
+      if (item instanceof PipelineError && args[0] !== "--error") {
+        return item;
+      } else {
+        yield item;
+      }
+    }
+  }
+
+  return Seq.of(await gen());
+}
+
+export async function parse(
   args,
   input,
   results = [],
@@ -186,33 +260,6 @@ export default async function parse(
       }
     ],
 
-    /* Execute shell command */
-    [
-      x => x === "-e",
-      async () => {
-        const { cursor, expression } = munch(args.slice(1));
-        return await doParse(
-          args.slice(cursor + 1),
-          await shellCmd(toExpressionString(expression), input)
-        );
-      }
-    ],
-
-    /* Print */
-    [
-      x => x === "-p",
-      async () =>
-        await parse(
-          args.slice(1),
-          input,
-          results,
-          useResultStack,
-          false,
-          onLog,
-          onWrite
-        )
-    ],
-
     /* Removes an expression result from the pipeline */
     [
       x => x === "-d",
@@ -226,6 +273,38 @@ export default async function parse(
           onLog,
           onWrite
         )
+    ],
+
+    /* Execute shell command */
+    [
+      x => x === "-e",
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        return await doParse(
+          args.slice(cursor + 1),
+          await shellCmd(toExpressionString(expression), input)
+        );
+      }
+    ],
+
+    /* Error handling */
+    [
+      x => x === "--error",
+      async () => {
+        const { cursor, expression } = munch(args.slice(1));
+        async function* asyncGenerator() {
+          const fn = await evalWithCatch(
+            `basho failed to evaluate error expression: ${expression}.`,
+            `async (x, i) => (${expression})`
+          );
+          let i = 0;
+          for await (const x of input) {
+            yield x instanceof PipelineError ? await fn(x, i) : x;
+            i++;
+          }
+        }
+        return await doParse(args.slice(cursor + 1), new Seq(asyncGenerator));
+      }
     ],
 
     /* Filter */
@@ -263,9 +342,11 @@ export default async function parse(
     [
       x => x === "-l",
       async () => {
-        const x = await input.toArray();
         const { cursor, expression } = munch(args.slice(1));
-        const fn = await eval(`(x, i) => (${expression})`);
+        const fn = await evalWithCatch(
+          `basho failed to evaluate expression: ${expression}.`,
+          `(x, i) => (${expression})`
+        );
         const newSeq = Seq.of(input).map(async (x, i) => {
           const res = await fn(x, i);
           onLog(res);
@@ -300,6 +381,28 @@ export default async function parse(
         )
     ],
 
+    /* Disable result stacking */
+    [
+      x => x === "--nostack",
+      async () =>
+        await parse(args.slice(1), results, true, mustPrint, onLog, onWrite)
+    ],
+
+    /* Print */
+    [
+      x => x === "-p",
+      async () =>
+        await parse(
+          args.slice(1),
+          input,
+          results,
+          useResultStack,
+          false,
+          onLog,
+          onWrite
+        )
+    ],
+
     /* Reduce */
     [
       x => x === "-r",
@@ -325,16 +428,29 @@ export default async function parse(
       }
     ],
 
+    /* Use results from the stack */
+    [
+      x => x === "--stack",
+      async () =>
+        await doParse(
+          args.slice(2),
+          unwrapSequence(results[results.length - 1 - parseInt(args[1])])
+        )
+    ],
+
     /* Terminate the pipeline */
     [
       x => x === "-t",
       async () => {
         const { cursor, expression } = munch(args.slice(1));
         async function* asyncGenerator() {
-          const fn = await eval(`(x, i) => (${expression})`);
+          const fn = await evalWithCatch(
+            `basho failed to evaluate expression: ${expression}.`,
+            `(x, i) => (${expression})`
+          );
           let i = 0;
           for await (const x of input) {
-            const res = fn(x, i);
+            const res = await fn(x, i);
             if (res === true) return;
             else {
               yield x;
@@ -350,9 +466,11 @@ export default async function parse(
     [
       x => x === "-w",
       async () => {
-        const x = await input.toArray();
         const { cursor, expression } = munch(args.slice(1));
-        const fn = await eval(`(x, i) => (${expression})`);
+        const fn = await evalWithCatch(
+          `basho failed to evaluate expression: ${expression}.`,
+          `(x, i) => (${expression})`
+        );
         const newSeq = Seq.of(input).map(async (x, i) => {
           const res = await fn(x, i);
           onWrite(res);
@@ -360,23 +478,6 @@ export default async function parse(
         });
         return await doParse(args.slice(cursor + 1), newSeq);
       }
-    ],
-
-    /* Disable result stacking */
-    [
-      x => x === "--nostack",
-      async () =>
-        await parse(args.slice(1), results, true, mustPrint, onLog, onWrite)
-    ],
-
-    /* Use results from the stack */
-    [
-      x => x === "--stack",
-      async () =>
-        await doParse(
-          args.slice(2),
-          unwrapSequence(results[results.length - 1 - parseInt(args[1])])
-        )
     ],
 
     [
@@ -405,6 +506,6 @@ export default async function parse(
   }
 
   return args.length
-    ? await cases.find(([predicate]) => predicate(args[0]))[1]()
-    : { mustPrint, result: input };
+  ? await cases.find(([predicate]) => predicate(args[0]))[1]()
+  : { mustPrint, result: input };
 }
