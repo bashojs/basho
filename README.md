@@ -271,11 +271,11 @@ basho 10 -l x -j x -e echo \${x}
 
 The -w option does the same thing, but without the newline.
 
-# Prints 10
-
+```bash
+# Prints 10 without a newline
 basho 10 -w x -j x -e echo \${x}
-
 ````
+
 ### Advanced
 
 You can reference the output of any previous expression in a pipeline with the
