@@ -16,9 +16,8 @@
   "main": "dist/basho.js",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "get-stdin": "^5.0.1",
-    "lazily-async": "^0.0.22",
-    "nodefunc-promisify": "^2.0.2"
+    "basho-eval": "^0.0.2",
+    "get-stdin": "^5.0.1"
   },
   "devDependencies": {
     "babel-core": "^6.22.1",

@@ -2,11 +2,8 @@
 
 import "babel-polyfill";
 import getStdin from "get-stdin";
-import { Seq } from "lazily-async";
-import { parse, PipelineError } from "./parse";
+import { evaluate, PipelineError } from "basho-eval";
 import haikus from "./haikus";
-
-export default parse;
 
 if (require.main == module) {
   if (process.argv.length > 2) {
@@ -28,7 +25,7 @@ if (require.main == module) {
             .replace(/\n$/, "")
             .split("\n")
             .filter(x => x !== "");
-          const output = await parse(
+          const output = await evaluate(
             input.concat(process.argv.slice(2)),
             undefined,
             [],

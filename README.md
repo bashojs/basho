@@ -296,8 +296,8 @@ expression replaces the exception with the string 'skipped'.
 basho '["a,b", 10, "c,d"]' -j 'x.split(",")' --error '"skipped"'
 ```
 
-If the first argument to basho is --ignoreerror, basho will not exit on error. It
-will simply move to the next item.
+If the first argument to basho is --ignoreerror, basho will not exit on error.
+It will simply move to the next item.
 
 ```bash
 basho --ignoreerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
@@ -309,6 +309,8 @@ The --printerror option works like --ignoreerror, but prints the error.
 basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
 ```
 
+Note that ignoreerror and printerror must not be preceded by any option except
+the -i import option.
 
 ### Tip
 
