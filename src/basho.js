@@ -10,11 +10,18 @@ export default parse;
 
 if (require.main == module) {
   if (process.argv.length > 2) {
-    if (process.argv[2] === "-v" || process.argv[2] === "--version") {
+    //Remove import args from the beginning.
+    const firstArgs = (function remove(args) {
+      return args[0] === "-i" ? remove(args.slice(3)) : args;
+    })(process.argv.slice(2));
+
+    if (firstArgs[0] === "-v" || firstArgs[0] === "--version") {
       const packageJSON = require("../package.json");
       console.log(packageJSON.version);
       process.exit(0);
     } else {
+      const printerror = firstArgs[0] === "--printerror";
+      const ignoreerror = printerror || firstArgs[0] === "--ignoreerror";
       getStdin()
         .then(async str => {
           const input = str
@@ -33,10 +40,15 @@ if (require.main == module) {
           if (output.mustPrint) {
             for await (const item of output.result) {
               if (item instanceof PipelineError) {
-                console.log(item.message);
-                throw item.error;
+                if (printerror) {
+                  console.log(item.message);
+                }
+                if (!ignoreerror) {
+                  throw item.error;
+                }
+              } else {
+                console.log(item);
               }
-              console.log(item);
             }
           }
           process.exit(0);

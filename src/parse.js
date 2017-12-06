@@ -71,7 +71,22 @@ async function evalWithCatch(message, exp) {
   }
 }
 
-async function evalExpression(exp, _input) {
+//Well, we don't use this anymore.
+function attachErrorHandler(input) {
+  return Seq.of({
+    async *[Symbol.asyncIterator]() {
+      for await (const item of input) {
+        if (item instanceof PipelineError) {
+          return item;
+        } else {
+          yield item;
+        }
+      }
+    }
+  });
+}
+
+async function evalExpression(exp, _input, nextArgs) {
   return typeof _input === "undefined" || _input === ""
     ? await (async () => {
         const code = `async () => (${exp})`;
@@ -88,15 +103,18 @@ async function evalExpression(exp, _input) {
             ? _input
             : Array.isArray(_input) ? Seq.of(_input) : Seq.of([_input]);
         return input.map(
-          await evalWithCatch(
-            `basho failed to evaluate expression: ${exp}.`,
-            code
-          )
+          async (x, i) =>
+            x instanceof PipelineError
+              ? x
+              : await (await evalWithCatch(
+                  `basho failed to evaluate expression: ${exp}.`,
+                  code
+                ))(x, i)
         );
       })();
 }
 
-async function shellCmd(template, input) {
+async function shellCmd(template, input, nextArgs) {
   const fn = await evalWithCatch(
     `basho failed to evaluate command template: ${template}.`,
     `async (x, i) => \`${template}\``
@@ -120,21 +138,26 @@ async function shellCmd(template, input) {
         }
       })()
     : (() => {
-        return input.map(async (x, i) => {
-          try {
-            const shellResult = await exec(await fn(x, i));
-            const items = shellResult
-              .split("\n")
-              .filter(x => x !== "")
-              .map(x => x.replace(/\n$/, ""));
-            return items.length === 1 ? items[0] : items;
-          } catch (ex) {
-            return new PipelineError(
-              `basho failed to execute shell command: ${template}`,
-              ex
-            );
-          }
-        });
+        return input.map(
+          async (x, i) =>
+            x instanceof PipelineError
+              ? x
+              : await (async () => {
+                  try {
+                    const shellResult = await exec(await fn(x, i));
+                    const items = shellResult
+                      .split("\n")
+                      .filter(x => x !== "")
+                      .map(x => x.replace(/\n$/, ""));
+                    return items.length === 1 ? items[0] : items;
+                  } catch (ex) {
+                    return new PipelineError(
+                      `basho failed to execute shell command: ${template}`,
+                      ex
+                    );
+                  }
+                })()
+        );
       })();
 }
 
@@ -175,12 +198,14 @@ async function reduce(exp, input, initialValue) {
     `basho failed to evaluate expression: ${initialValue}.`,
     initialValueCode
   );
-  const x = await getInitialValue()
+  const x = await getInitialValue();
   const res = await input.reduce(fn, getInitialValue());
-  debugger;
   return res;
 }
 
+/*
+  Consume parameters until we reach an option flag (-p, -e etc)
+*/
 function munch(parts) {
   function doMunch(parts, expression, cursor) {
     return !parts.length || options.includes(parts[0])
@@ -209,20 +234,6 @@ function findSequence(list, name) {
   return list.find(s => s instanceof NamedSequence && s.name === name).seq;
 }
 
-async function attachErrorHandler(input, args) {
-  async function* gen() {
-    for await (const item of input) {
-      if (item instanceof PipelineError && args[0] !== "--error") {
-        return item;
-      } else {
-        yield item;
-      }
-    }
-  }
-
-  return Seq.of(await gen());
-}
-
 export async function parse(
   args,
   input,
@@ -244,9 +255,13 @@ export async function parse(
       x => x === "-c",
       async () => {
         const names = args[1].split(",");
-        async function* asyncGenerator() {
-          const sequences = names.map(n => findSequence(results, n));
+        async function* mergeSequences() {
+          const sequences = await Promise.all(
+            names.map(n => findSequence(results, n))
+          );
+
           const generators = sequences.map(f => f.seq());
+
           while (true) {
             const output = await Promise.all(generators.map(gen => gen.next()));
             if (output.some(res => res.done === false)) {
@@ -256,7 +271,7 @@ export async function parse(
             }
           }
         }
-        return await doParse(args.slice(2), new Seq(asyncGenerator));
+        return await doParse(args.slice(2), Seq.of(mergeSequences()));
       }
     ],
 
@@ -282,7 +297,11 @@ export async function parse(
         const { cursor, expression } = munch(args.slice(1));
         return await doParse(
           args.slice(cursor + 1),
-          await shellCmd(toExpressionString(expression), input)
+          await shellCmd(
+            toExpressionString(expression),
+            input,
+            args.slice(cursor + 1)
+          )
         );
       }
     ],
@@ -313,7 +332,7 @@ export async function parse(
       async () => {
         const { cursor, expression } = munch(args.slice(1));
         const filtered = await filter(toExpressionString(expression), input);
-        return await doParse(args.slice(cursor + 1), Seq.of(filtered));
+        return await doParse(args.slice(cursor + 1), filtered);
       }
     ],
 
@@ -333,7 +352,11 @@ export async function parse(
         const { cursor, expression } = munch(args.slice(1));
         return await doParse(
           args.slice(cursor + 1),
-          await evalExpression(toExpressionString(expression), input)
+          await evalExpression(
+            toExpressionString(expression),
+            input,
+            args.slice(cursor + 1)
+          )
         );
       }
     ],
@@ -347,7 +370,7 @@ export async function parse(
           `basho failed to evaluate expression: ${expression}.`,
           `(x, i) => (${expression})`
         );
-        const newSeq = Seq.of(input).map(async (x, i) => {
+        const newSeq = input.map(async (x, i) => {
           const res = await fn(x, i);
           onLog(res);
           return x;
@@ -362,7 +385,7 @@ export async function parse(
       async () => {
         const { cursor, expression } = munch(args.slice(1));
         const filtered = await flatMap(toExpressionString(expression), input);
-        return await doParse(args.slice(cursor + 1), Seq.of(filtered));
+        return await doParse(args.slice(cursor + 1), filtered);
       }
     ],
 
@@ -381,11 +404,34 @@ export async function parse(
         )
     ],
 
+    /* Error handling. Handled by shell, ignore */
+    [
+      x => x === "--ignoreerror" || x === "--printerror",
+      async () =>
+        await parse(
+          args.slice(1),
+          input,
+          results,
+          useResultStack,
+          mustPrint,
+          onLog,
+          onWrite
+        )
+    ],
+
     /* Disable result stacking */
     [
       x => x === "--nostack",
       async () =>
-        await parse(args.slice(1), results, true, mustPrint, onLog, onWrite)
+        await parse(
+          args.slice(1),
+          input,
+          results,
+          true,
+          mustPrint,
+          onLog,
+          onWrite
+        )
     ],
 
     /* Print */
@@ -423,8 +469,7 @@ export async function parse(
       x => x === "-s",
       async () => {
         const seq = findSequence(results, args[1]);
-        const newSeq = Seq.of(seq);
-        return await doParse(args.slice(2), newSeq);
+        return await doParse(args.slice(2), seq);
       }
     ],
 
@@ -471,7 +516,7 @@ export async function parse(
           `basho failed to evaluate expression: ${expression}.`,
           `(x, i) => (${expression})`
         );
-        const newSeq = Seq.of(input).map(async (x, i) => {
+        const newSeq = input.map(async (x, i) => {
           const res = await fn(x, i);
           onWrite(res);
           return x;
@@ -487,7 +532,11 @@ export async function parse(
         const { cursor, expression } = munch(args);
         return await doParse(
           args.slice(cursor),
-          await evalExpression(toExpressionString(expression), input)
+          await evalExpression(
+            toExpressionString(expression),
+            input,
+            args.slice(cursor)
+          )
         );
       }
     ]
@@ -506,6 +555,6 @@ export async function parse(
   }
 
   return args.length
-  ? await cases.find(([predicate]) => predicate(args[0]))[1]()
-  : { mustPrint, result: input };
+    ? await cases.find(([predicate]) => predicate(args[0]))[1]()
+    : { mustPrint, result: input };
 }

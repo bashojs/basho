@@ -1,4 +1,4 @@
-# Basho: Shell Automation with Plain JavaScript 
+# Basho: Shell Automation with Plain JavaScript
 
 Installation
 
@@ -10,7 +10,8 @@ npm install -g basho
 
 Basho evaluates a pipeline of instructions left to right. Instructions can be
 JavaScript code, reference to an external JS file, or a shell command. What
-makes basho interesting is [Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this
+makes basho interesting is
+[Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this
 later.
 
 To evaluate a JavaScript expression, use the option -j. Let’s start with a
@@ -85,7 +86,8 @@ template string, with the variable ‘x’ holding the input from the preceding
 command in the pipeline. Remember to quote or escape characters which hold a
 special meaning in your shell, such as $, >, <, |, () etc.
 
-Tip: Single quotes are far easier to work with, since double quotes will try to expand $variables inside it.
+Tip: Single quotes are far easier to work with, since double quotes will try to
+expand $variables inside it.
 
 ```bash
 # Prints 1000. Escape the $.
@@ -193,6 +195,7 @@ basho [1,2,3] -m [x+10,x+20]
 ```
 
 A flatMap can be used to flatten an array of arrays as well.
+
 ```bash
 # Returns 1, 2, 3, 4
 basho [[1,2],[2,3]] -m x
@@ -208,8 +211,9 @@ basho '["a", "b", "c"]' -e echo \${x}\${i}
 
 ### Rewinding the pipeline
 
-Sometimes you want to ignore the result from the last expression, often while using shell commands.
-The -d option lets you do just that. You can use -d multiple times to rewind multiple expression results.
+Sometimes you want to ignore the result from the last expression, often while
+using shell commands. The -d option lets you do just that. You can use -d
+multiple times to rewind multiple expression results.
 
 ```bash
 # Prints 11 instead of 16, because of two rewinds
@@ -218,14 +222,16 @@ basho 10 -j x+1 -j x+2 -j x+3 -d -d
 
 ### Named expressions and Combining expressions
 
-The -n option gives a name to the result of the expression, so that you can recall (seek) it later with the -s option.
+The -n option gives a name to the result of the expression, so that you can
+recall (seek) it later with the -s option.
 
 ```
 # Prints 121; instead of (120*50) + 1
 basho 10 -j x*10 -j x+20 -n add20 -j x*50 -s add20 -j x+1
 ```
 
-The -c option allows you to combine/multiplex streams into an sequence of arrays.
+The -c option allows you to combine/multiplex streams into an sequence of
+arrays.
 
 ```
 # Return [11, 13], [21, 23], [31, 33], [41, 43]
@@ -257,10 +263,12 @@ basho 10 -l x -j x -e echo \${x}
 ```
 
 The -w option does the same thing, but without the newline.
-# Prints 10
-basho 10 -w x -j x -e echo \${x}
-```
 
+# Prints 10
+
+basho 10 -w x -j x -e echo \${x}
+
+````
 ### Advanced
 
 You can reference the output of any previous expression in a pipeline with the
@@ -270,11 +278,37 @@ steps you want to go back.
 ```bash
 # Prints [2,3,4,5]
 basho [1,2,3,4] -j x+1 -j x+2 --stack 1
-```
+````
 
 To turn off saving previous results (for performance reasons), use the --nostack
 option. Turning it off is hardly ever required, except when you're dealing with
 huge text transforms.
+
+### Error Handling
+
+You can handle an error with the --error option, and choose to return an
+arbitrary value in its place. If unhandled, the pipeline is terminated
+immediately. In the following example, x.split() results in an exception on the
+second input (10) since a number does have the split() method. The error handler
+expression replaces the exception with the string 'skipped'.
+
+```bash
+basho '["a,b", 10, "c,d"]' -j 'x.split(",")' --error '"skipped"'
+```
+
+If the first argument to basho is --ignoreerror, basho will not exit on error. It
+will simply move to the next item.
+
+```bash
+basho --ignoreerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
+```
+
+The --printerror option works like --ignoreerror, but prints the error.
+
+```bash
+basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
+```
+
 
 ### Tip
 
@@ -293,9 +327,9 @@ basho 'fetch("https://example.com/weather")' -j x.temperature
 
 Count the number of occurences of a word in a string or file.
 
-````bash
+```bash
 echo '"hello world hello hello"' | basho '(x.match(/hello/g) || []).length'
-````
+```
 
 Get the weather in bangalore
 
