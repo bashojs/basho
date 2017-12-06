@@ -265,14 +265,14 @@ basho -i node-fetch fetch \
 You can add a -l option anywhere in the pipeline to print the current value.
 
 ```bash
-# Prints 10\n
+# Logs 10\n
 basho 10 -l x -j x -e echo \${x}
 ```
 
 The -w option does the same thing, but without the newline.
 
 ```bash
-# Prints 10 without a newline
+# Logs 10 without a newline
 basho 10 -w x -j x -e echo \${x}
 ````
 
