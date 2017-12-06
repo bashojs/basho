@@ -117,6 +117,13 @@ shell.
 basho 10 -j x**2 | xargs echo
 ```
 
+If the input 'x' has spaces, basho will escape them before executing the shell command.
+
+```bash
+# This translates to cat Untitled\ Document.txt
+basho -q Untitled\ Document.txt -e cat \${x}
+```
+
 ### Importing JS files
 
 You can import a function from a JS file or an npm module with the -i option.
