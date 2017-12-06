@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "author": "Isotropy Team<isotropy@agilehead.com>",
   "contributors": [
     "Jeswin Kumar<jeswinpk@agilehead.com>"
@@ -16,7 +16,7 @@
   "main": "dist/basho.js",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "basho-eval": "^0.0.2",
+    "basho-eval": "^0.0.4",
     "get-stdin": "^5.0.1"
   },
   "devDependencies": {
