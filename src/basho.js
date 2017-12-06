@@ -34,16 +34,16 @@ if (require.main == module) {
             x => console.log(x),
             x => process.stdout.write(x.toString())
           );
-          if (output.mustPrint) {
-            for await (const item of output.result) {
-              if (item instanceof PipelineError) {
-                if (printerror) {
-                  console.log(item.message);
-                }
-                if (!ignoreerror) {
-                  throw item.error;
-                }
-              } else {
+          for await (const item of output.result) {
+            if (item instanceof PipelineError) {
+              if (printerror) {
+                console.log(item.message);
+              }
+              if (!ignoreerror) {
+                throw item.error;
+              }
+            } else {
+              if (output.mustPrint) {
                 console.log(item);
               }
             }

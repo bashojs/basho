@@ -16,7 +16,7 @@
   "main": "dist/basho.js",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
-    "basho-eval": "^0.0.5",
+    "basho-eval": "0.0.6",
     "get-stdin": "^5.0.1"
   },
   "devDependencies": {
