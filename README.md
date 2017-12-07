@@ -216,7 +216,7 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
-### Named expressions and Combining expressions (DEPRECATED!)
+### Named expressions and Combining expressions
 
 The -n option gives a name to the result of the expression, so that you can
 recall it later for combining streams.
@@ -233,8 +233,6 @@ arrays.
 # Return [11, 13], [21, 23], [31, 33], [41, 43]
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 ```
-
-Recalling a expression by name will cause that expression (as well a previous expressions) to be re-run,
 
 ### Promises!
 

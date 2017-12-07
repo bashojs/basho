@@ -28,8 +28,6 @@ if (require.main == module) {
           const output = await evaluate(
             input.concat(process.argv.slice(2)),
             undefined,
-            [],
-            true,
             true,
             x => console.log(x),
             x => process.stdout.write(x.toString())
@@ -44,7 +42,7 @@ if (require.main == module) {
               }
             } else {
               if (output.mustPrint) {
-                console.log(item);
+                console.log(item.value);
               }
             }
           }
