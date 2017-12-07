@@ -216,21 +216,10 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
-### Rewinding the pipeline
-
-Sometimes you want to ignore the result from the last expression, often while
-using shell commands. The -d option lets you do just that. You can use -d
-multiple times to rewind multiple expression results.
-
-```bash
-# Prints 11 instead of 16, because of two rewinds
-basho 10 -j x+1 -j x+2 -j x+3 -d -d
-```
-
-### Named expressions and Combining expressions
+### Named expressions and Combining expressions (DEPRECATED!)
 
 The -n option gives a name to the result of the expression, so that you can
-recall (seek) it later with the -s option.
+recall it later for combining streams.
 
 ```
 # Prints 121; instead of (120*50) + 1
@@ -244,6 +233,8 @@ arrays.
 # Return [11, 13], [21, 23], [31, 33], [41, 43]
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 ```
+
+Recalling a expression by name will cause that expression (as well a previous expressions) to be re-run,
 
 ### Promises!
 

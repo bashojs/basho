@@ -137,11 +137,6 @@ export default function run() {
       output.should.equal("1 2 3\n3 4 5\n");
     });
   
-    it(`Removes an expression result from the pipeline`, async () => {
-      const output = await execute(`${basho} 10 -j x+1 -j x+2 -j x+3 -d -d`);
-      output.should.equal("11\n");
-    });
-  
     it(`Receives an array at once`, async () => {
       const output = await execute(
         `${basho} [1,2,3,4] -a x.length -e 'echo \${x}'`
@@ -194,13 +189,6 @@ export default function run() {
       output.should.equal("20\n");
     });
   
-    it(`Can reference the result stack`, async () => {
-      const output = await execute(
-        `${basho} [10,20,30,40] -j x+1 -j x+2 --stack 2 -j x`
-      );
-      output.should.equal("10\n20\n30\n40\n");
-    });
-  
     it(`Terminates based on a predicate`, async () => {
       const output = await execute(`${basho} '[1,2,3,4]' -t 'x>2' -j 'x*10'`);
   
@@ -215,22 +203,14 @@ export default function run() {
       output.should.equal("10\n20\n");
     });
   
-    it(`Creates a named result but does not seek`, async () => {
+    it(`Creates a named result`, async () => {
       const output = await execute(
         `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x+10`
       );
   
       output.should.equal("23\n33\n43\n53\n");
     });
-  
-    it(`Creates a named result and seeks`, async () => {
-      const output = await execute(
-        `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x*100 -s add2 -j x+10`
-      );
-  
-      output.should.equal("23\n33\n43\n53\n");
-    });
-  
+    
     it(`Combines named results`, async () => {
       const output = await execute(
         `${basho} [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2`
