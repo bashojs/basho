@@ -308,19 +308,6 @@ basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
 Note that ignoreerror and printerror must not be preceded by any option except
 the -i import option.
 
-### Tip
-
-If you need the fetch module (or any other) often, you’re better off creating an
-alias for basho in .bashrc (or .bash_profile on a Mac).
-
-```bash
-# in .bashrc
-alias basho='basho -i node-fetch fetch'
-
-# now you could just do
-basho 'fetch("https://example.com/weather")' -j x.temperature
-```
-
 ## Real world examples
 
 Count the number of occurences of a word in a string or file.
