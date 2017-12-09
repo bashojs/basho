@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import "babel-polyfill";
-import getStdin from "get-stdin";
-import { evaluate, PipelineError } from "basho-eval";
+import "./preload";
+import getStdin = require("get-stdin");
+import { evaluate, PipelineValue, PipelineError } from "basho-eval";
 import haikus from "./haikus";
 
 if (require.main == module) {
   if (process.argv.length > 2) {
     //Remove import args from the beginning.
-    const firstArgs = (function remove(args) {
+    const firstArgs = (function remove(args: Array<string>): Array<string> {
       return args[0] === "-i" ? remove(args.slice(3)) : args;
     })(process.argv.slice(2));
 
@@ -20,17 +20,16 @@ if (require.main == module) {
       const printerror = firstArgs[0] === "--printerror";
       const ignoreerror = printerror || firstArgs[0] === "--ignoreerror";
       getStdin()
-        .then(async str => {
+        .then(async (str: string) => {
           const input = str
             .replace(/\n$/, "")
             .split("\n")
             .filter(x => x !== "");
           const output = await evaluate(
             input.concat(process.argv.slice(2)),
-            undefined,
             true,
-            x => console.log(x),
-            x => process.stdout.write(x.toString())
+            (x: string) => console.log(x),
+            (x: string) => process.stdout.write(x.toString())
           );
           for await (const item of output.result) {
             if (item instanceof PipelineError) {
@@ -40,7 +39,7 @@ if (require.main == module) {
               if (!ignoreerror) {
                 throw item.error;
               }
-            } else {
+            } else if (item instanceof PipelineValue) {
               if (output.mustPrint) {
                 console.log(item.value);
               }
@@ -48,13 +47,13 @@ if (require.main == module) {
           }
           process.exit(0);
         })
-        .catch(error => {
+        .catch((error: any) => {
           console.log(error.message);
           process.exit(1);
         });
     }
   } else {
-    const haiku = haikus[parseInt(Math.random() * haikus.length)];
+    const haiku = haikus[Math.floor(Math.random() * haikus.length)];
     console.log(`${haiku.text}\n -${haiku.author}`);
   }
 }

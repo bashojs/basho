@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist",
+    "allowJs": false,
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["es2017", "esnext.asynciterable"],
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "strict": true,
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "types": [
+      "node",
+      "get-stdin",
+      "nodefunc-promisify",
+      "basho-eval"
+    ]
+  },
+  "include": ["./src/**/*"]
+}
