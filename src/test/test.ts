@@ -243,7 +243,7 @@ describe("basho", () => {
     );
 
     output.should.equal(
-      "[ 'a', 'b' ]\nbasho failed to evaluate expression: x.split(\",\").\n[ 'c', 'd' ]\n"
+      "[ 'a', 'b' ]\nFailed to evaluate expression: x.split(\",\").\n[ 'c', 'd' ]\n"
     );
   });
 
