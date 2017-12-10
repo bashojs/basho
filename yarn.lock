@@ -24,9 +24,9 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-basho-eval@^0.0.13:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.13.tgz#69067aa4681f740f59e28d40b6909000c009e578"
+basho-eval@^0.0.14:
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.14.tgz#ad0eb8c5f948a4e788319095fc00d6064124d03b"
   dependencies:
     lazily-async "^0.0.31"
     nodefunc-promisify "^2.0.2"

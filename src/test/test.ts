@@ -221,6 +221,14 @@ describe("basho", () => {
     output.should.equal("[ 11, 13 ]\n[ 21, 23 ]\n[ 31, 33 ]\n[ 41, 43 ]\n");
   });
 
+  it(`Seeks named results`, async () => {
+    const output = await execute(
+      `${basho} [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -s add1`
+    );
+
+    output.should.equal("11\n21\n31\n41\n");
+  });
+
   it(`Captures an error`, async () => {
     const output = await execute(
       `${basho} '["a,b", 10, "c,d"]' -j 'x.split(",")' --error '"skipped"'`

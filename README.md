@@ -216,14 +216,21 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
-### Named expressions and Combining expressions
+### Named expressions, Seeking and Combining expressions
 
 The -n option gives a name to the result of the expression, so that you can
-recall it later for combining streams.
+recall it later with the -s (seek) or -c (combine) options.
 
 ```
 # Prints 121; instead of (120*50) + 1
 basho 10 -j x*10 -j x+20 -n add20 -j x*50 -s add20 -j x+1
+```
+
+The -s option allows you to seek a named result.
+
+```
+# Return [11, 21, 31, 41]
+basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -a add1
 ```
 
 The -c option allows you to combine/multiplex streams into an sequence of
@@ -277,7 +284,7 @@ basho [1,2,3,4] -j x+1 -j x+2 --stack 1
 ````
 
 To turn off saving previous results (for performance reasons), use the --nostack
-option. Turning it off is hardly ever required, except when you're dealing with
+option. Turning it off is hardly ever required, except when you are dealing with
 huge text transforms.
 
 ### Error Handling
