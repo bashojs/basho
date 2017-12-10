@@ -230,7 +230,7 @@ The -s option allows you to seek a named result.
 
 ```
 # Return [11, 21, 31, 41]
-basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -a add1
+basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -s add1
 ```
 
 The -c option allows you to combine/multiplex streams into an sequence of
