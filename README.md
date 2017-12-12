@@ -272,21 +272,6 @@ The -w option does the same thing, but without the newline.
 basho 10 -w x -j x -e echo \${x}
 ````
 
-### Advanced
-
-You can reference the output of any previous expression in a pipeline with the
---stack option. The parameter to --stack can be an index indicating how many
-steps you want to go back.
-
-```bash
-# Prints [2,3,4,5]
-basho [1,2,3,4] -j x+1 -j x+2 --stack 1
-````
-
-To turn off saving previous results (for performance reasons), use the --nostack
-option. Turning it off is hardly ever required, except when you are dealing with
-huge text transforms.
-
 ### Error Handling
 
 You can handle an error with the --error option, and choose to return an
