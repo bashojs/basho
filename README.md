@@ -241,6 +241,21 @@ arrays.
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 ```
 
+### Recursion
+
+The -g option allows you to recurse to a previous named expression. 
+It takes two parameters; (1) an expression name and (2) a predicate which stops the recursion.
+
+Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
+
+```
+# Prints 1025
+basho 25 -j x+100 -n add1 -g add1 'x<1000'
+```
+
+Recursion is powerful. For instance, along with a promise that sleeps for a specified time, 
+recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
+
 ### Promises!
 
 If an JS expression evaluates to a promise, it is resolved before passing it to
@@ -270,7 +285,7 @@ The -w option does the same thing, but without the newline.
 ```bash
 # Logs 10 without a newline
 basho 10 -w x -j x -e echo \${x}
-````
+```
 
 ### Advanced
 
@@ -281,7 +296,7 @@ steps you want to go back.
 ```bash
 # Prints [2,3,4,5]
 basho [1,2,3,4] -j x+1 -j x+2 --stack 1
-````
+```
 
 To turn off saving previous results (for performance reasons), use the --nostack
 option. Turning it off is hardly ever required, except when you are dealing with

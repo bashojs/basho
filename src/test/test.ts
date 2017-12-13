@@ -101,9 +101,7 @@ describe("basho", () => {
 
   it(`Imports a file (shell), reuse import multiple times`, async () => {
     const output = await execute(
-      `${
-        basho
-      } 10 -i ./dist/test/square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
+      `${basho} 10 -i ./dist/test/square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
     );
     output.should.equal("40000\n");
   });
@@ -265,5 +263,37 @@ describe("basho", () => {
     const packageJSON = require("../../package.json");
     const output = await execute(`${basho} "--version"`);
     output.should.equal(`${packageJSON.version}\n`);
+  });
+
+  it(`Recurses`, async () => {
+    const output = await execute(
+      `${basho} [20] -j x+1 -n add1 -j x+2 -g add1 'x<30'`
+    );
+
+    output.should.equal("32\n");
+  });
+
+  it(`Recurses witn multiple inputs`, async () => {
+    const output = await execute(
+      `${basho} 25 -j x+100 -n add1 -g add1 'x<1000'`
+    );
+    output.should.equal("1001\n");
+  });
+
+  it(`Recurses witn multiple inputs`, async () => {
+    const output = await execute(
+      `${basho} [14, 20, 30] -j x+1 -n add1 -j x+2 -g add1 'x<30'`
+    );
+    output.should.equal("32\n32\n33\n");
+  });
+
+  it(`Computes Fibonacci Series`, async () => {
+    const output = await execute(
+      `${basho} [[[0],1]] -j '[x[0].concat(x[1]), x[0].slice(-1)[0] + x[1]]' -n fib -g fib 'x[1]<300' -j x[0]`
+    );
+
+    output.should.equal(
+      "[ 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233 ]\n"
+    );
   });
 });
