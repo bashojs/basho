@@ -277,7 +277,7 @@ describe("basho", () => {
     const output = await execute(
       `${basho} 25 -j x+100 -n add1 -g add1 'x<1000'`
     );
-    output.should.equal("1001\n");
+    output.should.equal("1025\n");
   });
 
   it(`Recurses witn multiple inputs`, async () => {
