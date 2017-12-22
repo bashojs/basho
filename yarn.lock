@@ -24,12 +24,11 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-basho-eval@^0.0.16:
-  version "0.0.16"
-  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.16.tgz#e6a62963470f5ae1e6436b344a8da451da6f72e7"
+basho-eval@^0.0.17:
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.17.tgz#83737e3b5f747cfb2c7644d2bc476ffdd061e4d3"
   dependencies:
     lazily-async "^0.0.31"
-    nodefunc-promisify "^2.0.2"
 
 brace-expansion@^1.1.7:
   version "1.1.8"
@@ -144,10 +143,6 @@ mocha@*:
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
-
-nodefunc-promisify@^2.0.2:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/nodefunc-promisify/-/nodefunc-promisify-2.0.2.tgz#9545952bf43601a27ea99d0b3be87952ff695d60"
 
 once@^1.3.0:
   version "1.4.0"
