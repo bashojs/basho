@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "author": "Jeswin<jeswinpk@agilehead.com>",
   "scripts": {
     "build": "./build.sh",
