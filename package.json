@@ -11,7 +11,7 @@
   },
   "main": "dist/basho.js",
   "dependencies": {
-    "basho-eval": "0.0.21",
+    "basho-eval": "0.0.22",
     "@types/get-stdin": "^5.0.1",
     "@types/node": "^8.0.57",
     "get-stdin": "^5.0.1"

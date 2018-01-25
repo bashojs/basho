@@ -24,10 +24,11 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-basho-eval@0.0.21:
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.21.tgz#72664d72fb440f5667d6ae010530be45f5daadb1"
+basho-eval@0.0.22:
+  version "0.0.22"
+  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.22.tgz#89a5eef2d50356f71395fa01fdb64db7a4ab62fb"
   dependencies:
+    "@types/node" "^8.0.57"
     lazily-async "^0.0.31"
 
 brace-expansion@^1.1.7:
