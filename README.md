@@ -329,7 +329,20 @@ Get the weather in bangalore
 echo '"Bangalore,in"' | basho 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
 ```
 
-Find all sub directories which need to be pushed to master
+Find all git hosted sub directories which might need a pull
+
+```bash
+basho -e 'ls -alt' \
+ -j 'x.split(/\s+/)' \
+ -f 'x.length>2' \
+ -j 'x.slice(-1)[0]' \
+ -f '![".", ".."].includes(x)' \
+ -l x \
+ -e 'cd ${x} && git remote update && git status' \
+ -f 'x.some(_ => /branch is behind/.test(_))'
+```
+
+Find all git hosted sub directories which need to be pushed to remote
 
 ```bash
 basho -e 'ls -alt' \
