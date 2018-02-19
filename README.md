@@ -329,6 +329,19 @@ Get the weather in bangalore
 echo '"Bangalore,in"' | basho 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
 ```
 
+Find all sub directories which need to be pushed to master
+
+```bash
+basho -e 'ls -alt' \
+  -j 'x.split(/\s+/)' \
+  -f 'x.length>2' \
+  -j 'x.slice(-1)[0]' \
+  -f '![".", ".."].includes(x)' \
+  -l x \
+  -e 'cd ${x} && git status' \
+  -f '!x.some(_ => /nothing to commit/.test(_)) || !x.some(_ => /branch is up-to-date/.test(_))'
+```
+
 ## That's it
 
 Typing basho without any parameters does nothing but might make you happy. Or
