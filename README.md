@@ -1,6 +1,13 @@
 # Basho: Shell Automation with Plain JavaScript
 
-Installation
+Give basho a try without commitments: (Use any basho command prefixed with npx)
+
+```bash
+# Prints 100
+npx basho -j 100
+```
+
+Like it? Make it permanent with -
 
 ```bash
 npm install -g basho
