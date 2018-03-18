@@ -1,16 +1,19 @@
 # Basho: Shell Automation with Plain JavaScript
 
-Give basho a try without commitments: (Use any basho command prefixed with npx)
+Basho lets you to write complex shell tasks using plain JavaScript without having to dabble with shell scripting.
+But when needed, basho lets you easily integrate shell commands as well.
 
-```bash
-# Prints 100
-npx basho -j 100
-```
-
-Like it? Make it permanent with -
+Install basho first.
 
 ```bash
 npm install -g basho
+```
+
+If you have npm > 5.2.0, you can use the npx command to try basho without installing.
+
+```bash
+# For example, Prints 100
+npx basho -j 100
 ```
 
 ### Basics
