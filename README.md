@@ -330,7 +330,7 @@ the -i import option.
 Count the number of occurences of a word in a string or file.
 
 ```bash
-echo '"hello world hello hello"' | basho '(x.match(/hello/g) || []).length'
+echo '"hello world hello hello"' | basho -j '(x.match(/hello/g) || []).length'
 ```
 
 Get the weather in bangalore
