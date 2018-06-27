@@ -16,6 +16,10 @@
   version "8.0.57"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-8.0.57.tgz#e5d8b4dc112763e35cfc51988f4f38da3c486d99"
 
+"@types/node@^9.4.7":
+  version "9.6.22"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-9.6.22.tgz#05b55093faaadedea7a4b3f76e9a61346a6dd209"
+
 "@types/should@^11.2.0":
   version "11.2.0"
   resolved "https://registry.yarnpkg.com/@types/should/-/should-11.2.0.tgz#e74aadfc13a1a0fc4b43786093eda395b6b32263"
@@ -24,11 +28,11 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-basho-eval@0.0.22:
-  version "0.0.22"
-  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.22.tgz#89a5eef2d50356f71395fa01fdb64db7a4ab62fb"
+basho-eval@^0.0.23:
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-0.0.23.tgz#46e1c7205cd9733843591f18fd74004e8097e5cd"
   dependencies:
-    "@types/node" "^8.0.57"
+    "@types/node" "^9.4.7"
     lazily-async "^0.0.31"
 
 brace-expansion@^1.1.7:

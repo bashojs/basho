@@ -1,1 +1,3 @@
-(Symbol as any).asyncIterator = Symbol.asyncIterator || Symbol.for("Symbol.asyncIterator");
+if (typeof Symbol.asyncIterator === "undefined") {
+  (Symbol as any).asyncIterator = Symbol.for("Symbol.asyncIterator");
+}
