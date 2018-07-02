@@ -362,7 +362,7 @@ basho -e 'ls -alt' \
   -f '![".", ".."].includes(x)' \
   -l x \
   -e 'cd ${x} && git status' \
-  -f '!x.some(_ => /nothing to commit/.test(_)) || !x.some(_ => /branch is up-to-date/.test(_))'
+  -f '!x.some(_ => /nothing to commit/.test(_)) && !x.some(_ => /branch is up-to-date/.test(_))'
 ```
 
 ## That's it
