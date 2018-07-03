@@ -74,7 +74,7 @@ You can pipe an expression into a subsequent expression. The variable ‘x’ is
 always used as a placeholder for receiving the previous input.
 
 ```bash
-# Prints 10000
+# Prints 10100
 basho 100 -j x**2 -j x+100
 ```
 
