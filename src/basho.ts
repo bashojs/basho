@@ -26,7 +26,8 @@ if (require.main == module) {
             .split("\n")
             .filter(x => x !== "");
           const output = await evaluate(
-            input.concat(process.argv.slice(2)),
+            process.argv.slice(2),
+            input,
             true,
             (x: string) => console.log(x),
             (x: string) => process.stdout.write(x.toString())

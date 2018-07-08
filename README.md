@@ -119,8 +119,14 @@ basho can receive input via stdin. As always, ‘x’ represents the input.
 echo 10 | basho 'parseInt(x)**2'
 ```
 
-There’s nothing stopping you from using all the piping magic built into your
-shell.
+You can pipe multi-line output from other commands.
+
+```bash
+# Prints length of file or dir names
+ls | basho 'x.length'
+```
+
+There’s nothing stopping you from piping basho's output either.
 
 ```bash
 # Prints 100

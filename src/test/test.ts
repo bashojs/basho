@@ -111,6 +111,11 @@ describe("basho", () => {
     output.should.equal("10\n");
   });
 
+  it(`Can accept a multi-line piped argument`, async () => {
+    const output = await execute(`printf "10\n20" | ${basho} -e 'echo \${x}'`);
+    output.should.equal("10\n20\n");
+  });
+
   it(`Calls a subsequent expression for each array item`, async () => {
     const output = await execute(`${basho} [1,2,3,4] -e 'echo N\${x}'`);
     output.should.equal("N1\nN2\nN3\nN4\n");
