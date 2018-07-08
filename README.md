@@ -122,8 +122,8 @@ echo 10 | basho 'parseInt(x)**2'
 You can pipe multi-line output from other commands.
 
 ```bash
-# Prints length of file or dir names
-ls | basho 'x.length'
+# Find all files and directories with the string 'git' in its name.
+ls -al | basho -f 'x.includes("git")'
 ```
 
 There’s nothing stopping you from piping basho's output either.
