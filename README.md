@@ -333,7 +333,7 @@ the -i import option.
 
 ## Real world examples
 
-Count the number of occurences of a word in a string or file.
+Count the number of occurences of a word in a line of text.
 
 ```bash
 echo '"hello world hello hello"' | basho -j '(x.match(/hello/g) || []).length'
