@@ -339,6 +339,18 @@ Count the number of occurences of a word in a string or file.
 echo '"hello world hello hello"' | basho -j '(x.match(/hello/g) || []).length'
 ```
 
+Recursively file all typescript files
+
+```bash
+find . | basho -f 'x.endsWith(".ts")'
+```
+
+Count the number of typescript files
+
+```bash
+find . | basho -f 'x.endsWith(".ts")' -a x.length
+```
+
 Get the weather in bangalore
 
 ```bash
