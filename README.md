@@ -354,7 +354,13 @@ find . | basho -f 'x.endsWith(".ts")' -a x.length
 Get the weather in bangalore
 
 ```bash
-echo '"Bangalore,in"' | basho 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
+echo '"Bangalore,in"' | basho -i node-fetch fetch 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
+```
+
+Who wrote Harry Potter and the Philosopher's Stone?
+
+```bash
+basho -i node-fetch fetch 'fetch("https://www.googleapis.com/books/v1/volumes?q=isbn:0747532699")' -j 'x.json()' -j 'x.items[0].volumeInfo.authors'
 ```
 
 Find all git hosted sub directories which might need a pull
