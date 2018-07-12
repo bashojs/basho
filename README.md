@@ -376,6 +376,18 @@ basho -e 'ls -alt' \
  -f 'x.some(_ => /branch is behind/.test(_))'
 ```
 
+Or with the pipe
+
+```bash
+ls -alt | basho 'x.split(/\s+/)' \
+ -f 'x.length>2' \
+ -j 'x.slice(-1)[0]' \
+ -f '![".", ".."].includes(x)' \
+ -l x \
+ -e 'cd ${x} && git remote update && git status' \
+ -f 'x.some(_ => /branch is behind/.test(_))'
+```
+
 Find all git hosted sub directories which need to be pushed to remote
 
 ```bash
