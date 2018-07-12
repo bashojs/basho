@@ -376,7 +376,7 @@ basho -e 'ls -alt' \
  -f 'x.some(_ => /branch is behind/.test(_))'
 ```
 
-Or with the pipe
+Same thing using shell piping
 
 ```bash
 ls -alt | basho 'x.split(/\s+/)' \
