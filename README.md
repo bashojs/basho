@@ -371,9 +371,10 @@ basho -e 'ls -alt' \
  -f 'x.length>2' \
  -j 'x.slice(-1)[0]' \
  -f '![".", ".."].includes(x)' \
- -l x \
+ -n dirname \
  -e 'cd ${x} && git remote update && git status' \
- -f 'x.some(_ => /branch is behind/.test(_))'
+ -f 'x.some(_ => /branch is behind/.test(_))' \
+ -s dirname
 ```
 
 Same thing using shell piping
@@ -383,22 +384,23 @@ ls -alt | basho 'x.split(/\s+/)' \
  -f 'x.length>2' \
  -j 'x.slice(-1)[0]' \
  -f '![".", ".."].includes(x)' \
- -l x \
+ -n dirname \
  -e 'cd ${x} && git remote update && git status' \
- -f 'x.some(_ => /branch is behind/.test(_))'
+ -f 'x.some(_ => /branch is behind/.test(_))' \
+ -s dirname
 ```
 
 Find all git hosted sub directories which need to be pushed to remote
 
 ```bash
-basho -e 'ls -alt' \
-  -j 'x.split(/\s+/)' \
+ls -alt | basho 'x.split(/\s+/)' \
   -f 'x.length>2' \
   -j 'x.slice(-1)[0]' \
   -f '![".", ".."].includes(x)' \
-  -l x \
+  -n dirname \
   -e 'cd ${x} && git status' \
-  -f '!x.some(_ => /nothing to commit/.test(_)) && !x.some(_ => /branch is up-to-date/.test(_))'
+  -f '!x.some(_ => /nothing to commit/.test(_)) && !x.some(_ => /branch is up-to-date/.test(_))' \
+  -s dirname
 ```
 
 ## That's it
