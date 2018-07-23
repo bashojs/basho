@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "0.0.39",
+  "version": "0.0.40",
   "author": "Jeswin<jeswinpk@agilehead.com>",
   "scripts": {
     "build": "./build.sh",
@@ -12,15 +12,15 @@
   "main": "dist/basho.js",
   "dependencies": {
     "@types/get-stdin": "^5.0.1",
-    "@types/node": "^8.0.57",
-    "basho-eval": "^0.0.24",
-    "get-stdin": "^5.0.1"
+    "@types/node": "^10.5.2",
+    "basho-eval": "^0.0.25",
+    "get-stdin": "^6.0.0"
   },
   "devDependencies": {
-    "@types/mocha": "^2.2.44",
-    "@types/should": "^11.2.0",
-    "mocha": "*",
-    "should": "*"
+    "@types/mocha": "^5.2.5",
+    "@types/should": "^13.0.0",
+    "mocha": "5.2.0",
+    "should": "13.2.1"
   },
   "license": "MIT"
 }
