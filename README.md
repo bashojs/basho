@@ -259,7 +259,7 @@ basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 
 ### Recursion
 
-The -g option allows you to recurse to a previous named expression. 
+The -g option allows you to recurse to a previous named expression.
 It takes two parameters; (1) an expression name and (2) a predicate which stops the recursion.
 
 Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
@@ -269,7 +269,7 @@ Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
 basho 25 -j x+100 -n add1 -g add1 'x<1000'
 ```
 
-Recursion is powerful. For instance, along with a promise that sleeps for a specified time, 
+Recursion is powerful. For instance, along with a promise that sleeps for a specified time,
 recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
 
 ### Promises!
@@ -401,6 +401,19 @@ ls -alt | basho 'x.split(/\s+/)' \
   -e 'cd ${x} && git status' \
   -f '!x.some(_ => /nothing to commit/.test(_)) && !x.some(_ => /branch is up-to-date/.test(_))' \
   -s dirname
+```
+
+Check if basho version is at least 0.0.43
+
+```bash
+BASHO_VERSION=$(basho -v | basho 'x.split(".")' -j '(parseInt(x[0]) > 0 || parseInt(x[1]) > 0 || parseInt(x[2]) >= 43) && "OK"')
+
+if [[ $BASHO_VERSION == "OK" ]]
+then
+  echo "All good. Format the universe."
+else
+  echo "Install basho version 0.0.43 or higher."
+fi
 ```
 
 ## That's it
