@@ -1,9 +1,8 @@
 {
   "name": "basho",
-  "version": "0.0.44",
+  "version": "0.0.45",
   "author": "Jeswin<jeswinpk@agilehead.com>",
   "scripts": {
-    "build": "./build.sh",
     "test": "./build.sh && mocha dist/test/test.js"
   },
   "bin": {
