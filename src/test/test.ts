@@ -14,7 +14,7 @@ function execute(cmd: string): any {
   });
 }
 
-const basho = `node ${path.resolve("./dist/basho.js")}`;
+const basho = `node ${path.resolve("./dist/index.js")}`;
 
 describe("basho", () => {
   it(`Prints a number`, async () => {
