@@ -3,7 +3,7 @@
 Basho lets you to write complex shell tasks using plain JavaScript without having to dabble with shell scripting.
 But when needed, basho lets you easily integrate shell commands as well.
 
-Install basho first.
+Install basho first. For now basho only works on *Node v8.0 or above*.
 
 ```bash
 npm install -g basho
@@ -16,7 +16,7 @@ If you have npm > 5.2.0, you can use the npx command to try basho without instal
 npx basho -j 100
 ```
 
-Note: for now *you'll need Node v8.0 or above*.
+Note: 
 
 ### Basics
 
