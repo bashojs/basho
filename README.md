@@ -16,6 +16,8 @@ If you have npm > 5.2.0, you can use the npx command to try basho without instal
 npx basho -j 100
 ```
 
+Note: for now *you'll need Node v8.0 or above*.
+
 ### Basics
 
 Basho evaluates a pipeline of instructions left to right. Instructions can be
