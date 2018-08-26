@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Jeswin<jeswinpk@agilehead.com>",
   "scripts": {
     "test": "./build.sh && mocha dist/test/test.js"
@@ -11,8 +11,8 @@
   "main": "dist/index.js",
   "dependencies": {
     "@types/get-stdin": "^5.0.1",
-    "@types/node": "^10.7.1",
-    "basho-eval": "1.0.0",
+    "@types/node": "^10.9.2",
+    "basho-eval": "^1.0.1",
     "get-stdin": "^6.0.0"
   },
   "devDependencies": {

@@ -12,9 +12,9 @@
   version "5.2.5"
   resolved "https://registry.yarnpkg.com/@types/mocha/-/mocha-5.2.5.tgz#8a4accfc403c124a0bafe8a9fc61a05ec1032073"
 
-"@types/node@*", "@types/node@^10.5.2", "@types/node@^10.7.1":
-  version "10.7.1"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.7.1.tgz#b704d7c259aa40ee052eec678758a68d07132a2e"
+"@types/node@*", "@types/node@^10.5.2", "@types/node@^10.9.2":
+  version "10.9.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-10.9.2.tgz#f0ab8dced5cd6c56b26765e1c0d9e4fdcc9f2a00"
 
 "@types/should@^13.0.0":
   version "13.0.0"
@@ -26,12 +26,12 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
 
-basho-eval@1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-1.0.0.tgz#5f91b90144efd661b118764d4adbdf120ba63727"
+basho-eval@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/basho-eval/-/basho-eval-1.0.1.tgz#715a85c0741e96dc9379d95454ef012527101716"
   dependencies:
-    "@types/node" "^10.7.1"
-    lazily-async "^0.0.32"
+    "@types/node" "^10.9.2"
+    lazily-async "^0.0.33"
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -108,9 +108,9 @@ inherits@2:
   version "2.0.3"
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
 
-lazily-async@^0.0.32:
-  version "0.0.32"
-  resolved "https://registry.yarnpkg.com/lazily-async/-/lazily-async-0.0.32.tgz#965444490e879e9782e533ab8bb6e1f21b7f5e22"
+lazily-async@^0.0.33:
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/lazily-async/-/lazily-async-0.0.33.tgz#6073b024a4295f92fd53bf12ffc516fd4dcbf8f7"
   dependencies:
     "@types/node" "^10.5.2"
 
