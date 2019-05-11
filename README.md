@@ -366,37 +366,19 @@ basho -i node-fetch fetch 'fetch("https://www.googleapis.com/books/v1/volumes?q=
 Find all git hosted sub directories which might need a pull
 
 ```bash
-basho -e 'ls -alt' \
- -j 'x.split(/\s+/)' \
- -f 'x.length>2' \
- -j 'x.slice(-1)[0]' \
- -f '![".", ".."].includes(x)' \
- -n dirname \
- -e 'cd ${x} && git remote update && git status' \
- -f 'x.some(_ => /branch is behind/.test(_))' \
- -s dirname
-```
-
-Same thing using shell piping
-
-```bash
-ls -alt | basho 'x.split(/\s+/)' \
- -f 'x.length>2' \
- -j 'x.slice(-1)[0]' \
- -f '![".", ".."].includes(x)' \
- -n dirname \
- -e 'cd ${x} && git remote update && git status' \
- -f 'x.some(_ => /branch is behind/.test(_))' \
- -s dirname
+ls | basho 'x.split("\t")' \
+  -m x \
+  -n dirname \
+  -e 'cd ${x} && git remote update && git status' \
+  -f 'x.some(_ => /branch is behind/.test(_))' \
+  -s dirname
 ```
 
 Find all git hosted sub directories which need to be pushed to remote
 
 ```bash
-ls -alt | basho 'x.split(/\s+/)' \
-  -f 'x.length>2' \
-  -j 'x.slice(-1)[0]' \
-  -f '![".", ".."].includes(x)' \
+ls | basho 'x.split("\t")' \
+  -m x \
   -n dirname \
   -e 'cd ${x} && git status' \
   -f '!x.some(_ => /nothing to commit/.test(_)) && !x.some(_ => /branch is up-to-date/.test(_))' \
