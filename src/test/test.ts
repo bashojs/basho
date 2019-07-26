@@ -94,14 +94,14 @@ describe("basho", () => {
 
   it(`Imports a file`, async () => {
     const output = await execute(
-      `${basho} 10 -i ./dist/test/square.js sqr -j 'sqr(x)'`
+      `${basho} 10 --import ./dist/test/square.js sqr -j 'sqr(x)'`
     );
     output.should.equal("100\n");
   });
 
   it(`Imports a file (shell), reuse import multiple times`, async () => {
     const output = await execute(
-      `${basho} 10 -i ./dist/test/square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
+      `${basho} 10 --import ./dist/test/square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
     );
     output.should.equal("40000\n");
   });
@@ -206,6 +206,22 @@ describe("basho", () => {
     );
 
     output.should.equal("10\n20\n");
+  });
+
+  it(`Can use a template expression in a JS Expression`, async () => {
+    const output = await execute(
+      `${basho} [10, 11, 12] -d add1 x+1 -u '\${k.add1}+1'`
+    );
+
+    output.should.equal("12\n13\n14\n");
+  });
+
+  it(`Can use a template expression in a Shell Command`, async () => {
+    const output = await execute(
+      `${basho} [10, 11, 12] -d ECHO_CMD echo -e '\${k.ECHO_CMD} N\${x}'`
+    );
+
+    output.should.equal("N10\nN11\nN12\n");
   });
 
   it(`Creates a named result`, async () => {

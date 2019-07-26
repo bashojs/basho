@@ -9,7 +9,7 @@ if (require.main == module) {
   if (process.argv.length > 2) {
     //Remove import args from the beginning.
     const firstArgs = (function remove(args: Array<string>): Array<string> {
-      return args[0] === "-i" ? remove(args.slice(3)) : args;
+      return args[0] === "--import" ? remove(args.slice(3)) : args;
     })(process.argv.slice(2));
 
     if (firstArgs[0] === "-v" || firstArgs[0] === "--version") {

@@ -142,8 +142,7 @@ basho -q Untitled\ Document.txt -e cat \${x}
 
 ### Importing JS files
 
-You can import a function from a JS file or an npm module with the -i option.
-The -i option takes two parameters; a filename or module name and an alias for
+You can import a function from a JS file or an npm module with the --import option. The --import option takes two parameters; a filename or module name and an alias for
 the import. An import is available in all subsequent expressions throughout the
 pipeline.
 
@@ -152,10 +151,10 @@ pipeline.
 module.exports = function square(n) { return n ** 2; }
 
 # prints 100. Imports square.js as sqr.
-basho 10 -i square.js sqr -j 'sqr(x)'
+basho 10 --import square.js sqr -j 'sqr(x)'
 
 # Prints 40000. Does sqr(10), then adds 100, then sqr(200)
-basho 10 -i square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'
+basho 10 --import square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'
 ```
 
 ### Arrays, map, filter, flatMap and reduce
@@ -232,6 +231,26 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
+### Expression templates
+
+Sometimes you want to reuse an expression multiple times in the pipeline. You can define expressions with the -d option and they get stored as fields in a variable named 'k'. See usage below.
+
+Expression templates can be used in both JS expressions and shell expressions. 
+
+In a JS expression, use the -d option to define the expression and -u option to use it referencing the 'k' variable.
+
+```bash
+# Prints 12, 13, 14
+basho [10, 11, 12] -d add1 x+1 -u '${k.add1}+1'
+```
+
+They can be used directly in shell commands with the -e option we've seen earlier.
+
+```bash
+# Same as echo 10; echo 11; echo 12
+basho [10, 11, 12] -d ECHO_CMD echo -e '${k.ECHO_CMD} N${x}'
+```
+
 ### Named expressions, Seeking and Combining expressions
 
 The -n option gives a name to the result of the expression, so that you can
@@ -282,7 +301,7 @@ the next command in the pipeline.
 basho 'Promise.resolve(10)' -e echo \${x}
 
 # Something more useful
-basho -i node-fetch fetch \
+basho --import node-fetch fetch \
  -j 'fetch("http://oaks.nvg.org/basho.html")' \
  -e echo \${x}
 ```
@@ -329,7 +348,7 @@ basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
 ```
 
 Note that ignoreerror and printerror must not be preceded by any option except
-the -i import option.
+the --import option.
 
 ## Real world examples
 
@@ -354,13 +373,13 @@ find . | basho -f 'x.endsWith(".ts")' -a x.length
 Get the weather in bangalore
 
 ```bash
-echo '"Bangalore,in"' | basho -i node-fetch fetch 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
+echo '"Bangalore,in"' | basho --import node-fetch fetch 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
 ```
 
 Who wrote Harry Potter and the Philosopher's Stone?
 
 ```bash
-basho -i node-fetch fetch 'fetch("https://www.googleapis.com/books/v1/volumes?q=isbn:0747532699")' -j 'x.json()' -j 'x.items[0].volumeInfo.authors'
+basho --import node-fetch fetch 'fetch("https://www.googleapis.com/books/v1/volumes?q=isbn:0747532699")' -j 'x.json()' -j 'x.items[0].volumeInfo.authors'
 ```
 
 Find all git hosted sub directories which might need a pull
