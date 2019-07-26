@@ -270,7 +270,7 @@ describe("basho", () => {
     );
 
     output.should.equal(
-      "[ 'a', 'b' ]\nFailed to evaluate expression: x.split(\",\").\n[ 'c', 'd' ]\n"
+      `[ \'a\', \'b\' ]\nFailed to evaluate expression: x.split(",").\nTypeError: x.split is not a function\n[ \'c\', \'d\' ]\n`
     );
   });
 

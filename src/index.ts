@@ -36,6 +36,7 @@ if (require.main == module) {
             if (item instanceof PipelineError) {
               if (printerror) {
                 console.log(item.message);
+                console.log(item.error.toString());
               }
               if (!ignoreerror) {
                 throw item.error;
