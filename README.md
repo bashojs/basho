@@ -231,24 +231,22 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e echo \${x}\${i}
 ```
 
-### Expression templates
+### Reusable Expressions
 
 Sometimes you want to reuse an expression multiple times in the pipeline. You can define expressions with the -d option and they get stored as fields in a variable named 'k'. See usage below.
 
-Expression templates can be used in both JS expressions and shell expressions. 
-
-In a JS expression, use the -d option to define the expression and -u option to use it referencing the 'k' variable.
+Here's how to use it in JS expressions
 
 ```bash
-# Prints 12, 13, 14
-basho [10, 11, 12] -d add1 x+1 -u '${k.add1}+1'
+# Prints 11, 12, 13
+basho [10, 11, 12] -d add1 'x=>x+1' -j 'k.add1(x)'
 ```
 
-They can be used directly in shell commands with the -e option we've seen earlier.
+Can be used in shell commands as well. Remember to quote though.
 
 ```bash
 # Same as echo 10; echo 11; echo 12
-basho [10, 11, 12] -d ECHO_CMD echo -e '${k.ECHO_CMD} N${x}'
+basho [10, 11, 12] -d ECHO_CMD '"echo"' -e '\${k.ECHO_CMD} N\${x}'
 ```
 
 ### Named expressions, Seeking and Combining expressions

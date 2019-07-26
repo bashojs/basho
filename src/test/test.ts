@@ -210,15 +210,15 @@ describe("basho", () => {
 
   it(`Can use a template expression in a JS Expression`, async () => {
     const output = await execute(
-      `${basho} [10, 11, 12] -d add1 x+1 -u '\${k.add1}+1'`
+      `${basho} [10, 11, 12] -d add1 'x=>x+1' -j 'k.add1(x)'`
     );
 
-    output.should.equal("12\n13\n14\n");
+    output.should.equal("11\n12\n13\n");
   });
 
   it(`Can use a template expression in a Shell Command`, async () => {
     const output = await execute(
-      `${basho} [10, 11, 12] -d ECHO_CMD echo -e '\${k.ECHO_CMD} N\${x}'`
+      `${basho} [10, 11, 12] -d ECHO_CMD '"echo"' -e '\${k.ECHO_CMD} N\${x}'`
     );
 
     output.should.equal("N10\nN11\nN12\n");
