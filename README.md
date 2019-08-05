@@ -265,7 +265,7 @@ Subroutines are defined with the --sub option followed by the name of the sub. T
 
 ```bash
 # Multiplies by 200
-basho [10,11,12] --sub multiply 'x*10' -j 'x*20' --endsub -j 'k.multiply(x)'`
+basho [10,11,12] --sub multiply 'x*10' -j 'x*20' --endsub -j 'k.multiply(x)'
 ```
 
 Nested Subroutines? Sure.

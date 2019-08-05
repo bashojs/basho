@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "author": "Jeswin<jeswinpk@agilehead.com>",
   "scripts": {
     "test": "./build.sh && mocha dist/test/test.js"
