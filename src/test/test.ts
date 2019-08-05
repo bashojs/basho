@@ -10,7 +10,11 @@ function execute(cmd: string): any {
     const child = child_process.exec(cmd, (err: any, result: any) => {
       resolve(result);
     });
-    child.stdin.end();
+    if (child.stdin) {
+      child.stdin.end();
+    } else {
+      throw new Error("Unable to access stdin within test process.");
+    }
   });
 }
 
@@ -59,11 +63,6 @@ describe("basho", () => {
 
   it(`Prints a string value`, async () => {
     const output = await execute(`${basho} '"hello, world"'`);
-    output.should.equal("hello, world\n");
-  });
-
-  it(`Prints a quoted string`, async () => {
-    const output = await execute(`${basho} -q hello, world`);
     output.should.equal("hello, world\n");
   });
 
@@ -144,7 +143,7 @@ describe("basho", () => {
 
   it(`Receives an array at once`, async () => {
     const output = await execute(
-      `${basho} [1,2,3,4] -a x.length -e 'echo \${x}'`
+      `${basho} [1,2,3,4] -a -j x.length -e 'echo \${x}'`
     );
     output.should.equal("4\n");
   });
@@ -165,7 +164,7 @@ describe("basho", () => {
 
   it(`Flatmaps`, async () => {
     const output = await execute(
-      `${basho} [1,2,3] -m [x+10, x+20] -e 'echo \${x}'`
+      `${basho} [1,2,3] -m '[x+10, x+20]' -e 'echo \${x}'`
     );
     output.should.equal("11\n21\n12\n22\n13\n23\n");
   });
@@ -210,7 +209,7 @@ describe("basho", () => {
 
   it(`Can use a template expression in a JS Expression`, async () => {
     const output = await execute(
-      `${basho} [10, 11, 12] -d add1 'x=>x+1' -j 'k.add1(x)'`
+      `${basho} '[10,11,12]' -d add1 'x=>x+1' -j 'k.add1(x)'`
     );
 
     output.should.equal("11\n12\n13\n");
@@ -218,10 +217,39 @@ describe("basho", () => {
 
   it(`Can use a template expression in a Shell Command`, async () => {
     const output = await execute(
-      `${basho} [10, 11, 12] -d ECHO_CMD '"echo"' -e '\${k.ECHO_CMD} N\${x}'`
+      `${basho} [10,11,12] -d ECHO_CMD '"echo"' -e '\${k.ECHO_CMD} N\${x}'`
     );
 
     output.should.equal("N10\nN11\nN12\n");
+  });
+
+  it(`Works with a subroutine`, async () => {
+    const output = await execute(
+      `${basho} [10,11,12] --sub multiply 'x*10' --endsub -j 'k.multiply(x)'`
+    );
+
+    output.should.equal("100\n110\n120\n");
+  });
+
+  it(`Works with a multi-step subroutine`, async () => {
+    const output = await execute(
+      `${basho} [10,11,12] --sub multiply 'x*10' -j 'x*10' --endsub -j 'k.multiply(x)'`
+    );
+
+    output.should.equal("1000\n1100\n1200\n");
+  });
+
+  it(`Works with nested subroutines`, async () => {
+    const output = await execute(
+      `${basho} [10,11,12] \
+        --sub multiply \
+          --sub square 'x*x' --endsub \
+          -j 'x*10' -j 'k.square(x)' \
+        --endsub \
+        -j 'k.multiply(x)'`     
+    );
+
+    output.should.equal("10000\n12100\n14400\n");
   });
 
   it(`Creates a named result`, async () => {
@@ -294,16 +322,16 @@ describe("basho", () => {
     output.should.equal("32\n");
   });
 
-  it(`Recurses witn multiple inputs`, async () => {
+  it(`Recurses with multiple inputs`, async () => {
     const output = await execute(
       `${basho} 25 -j x+100 -n add1 -g add1 'x<1000'`
     );
     output.should.equal("1025\n");
   });
 
-  it(`Recurses witn multiple inputs`, async () => {
+  it(`Recurses with multiple inputs`, async () => {
     const output = await execute(
-      `${basho} [14, 20, 30] -j x+1 -n add1 -j x+2 -g add1 'x<30'`
+      `${basho} [14,20,30] -j x+1 -n add1 -j x+2 -g add1 'x<30'`
     );
     output.should.equal("32\n32\n33\n");
   });

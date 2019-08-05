@@ -3,7 +3,7 @@
 Basho lets you to write complex shell tasks using plain JavaScript without having to dabble with shell scripting.
 But when needed, basho lets you easily integrate shell commands as well.
 
-Install basho first. For now basho only works on *Node v8.0 or above*.
+Install basho first. For now basho only works on _Node v8.0 or above_.
 
 ```bash
 npm install -g basho
@@ -56,16 +56,12 @@ to use it, but it's there.
 basho -p 100
 ```
 
-Working with strings is a little difficult. Since bash will chew the quotes for
-itself, you’d need to either use single quotes around your double quotes. So we
-have a shorthand for this, the -q option.
+Working with strings will need quoting, since bash will chew the quotes for
+itself. So you’ll need to either use single quotes around your double quotes.
 
 ```bash
 # Prints hello, world
 basho '"hello, world"'
-
-# Here's another way to do this
-basho -q hello, world
 ```
 
 ### Piping Results
@@ -78,6 +74,25 @@ always used as a placeholder for receiving the previous input.
 basho 100 -j x**2 -j x+100
 ```
 
+### Quoting expressions
+
+If an expression has spaces, it is important to quote it.
+In the following example, see how 'x + 100' is quoted.
+
+```bash
+# Prints 10100
+basho 100 -j 'x**2' -j 'x + 100'
+```
+
+Similarly, if an expression contains bash special characters it is necessary to quote them. In the following example, the expression is quotes since '>' is the bash redirection operator.
+
+```bash
+# Prints 1
+basho 100 -j 'x**2' -j 'x>100?1:2'
+```
+
+As a best practice, it is wise to quote all expressions (except maybe the trivially simple).
+
 ### Lazy evaluation and exit conditions
 
 You may choose to terminate the pipeline with the -t option when a condition is
@@ -86,7 +101,7 @@ evaluated.
 
 ```bash
 # Prints 10 and 20. The rest are never evaluated.
-basho [1,2,3,4,5] -t 'x>2' -j x*10
+basho [1,2,3,4,5] -t 'x>2' -j 'x*10'
 ```
 
 ### Shell Commands
@@ -94,14 +109,14 @@ basho [1,2,3,4,5] -t 'x>2' -j x*10
 Execute shell commands with the -e option. The shell command is expanded as a JS
 template string, with the variable ‘x’ holding the input from the preceding
 command in the pipeline. Remember to quote or escape characters which hold a
-special meaning in your shell, such as $, >, <, |, () etc.
+special meaning in your shell, such as \$, >, <, |, () etc.
 
 Tip: Single quotes are far easier to work with, since double quotes will try to
-expand $variables inside it.
+expand \$variables inside it.
 
 ```bash
 # Prints 1000. Escape the $.
-basho 1000 -e echo \${x}
+basho 1000 -e 'echo ${x}'
 ```
 
 You can extend the pipeline further after a shell command. The shell command’s
@@ -109,7 +124,7 @@ output becomes the input for the next command.
 
 ```bash
 # echo 110 - which is (10^2) + 10
-basho 10 -j x**2 -e echo \${x} -j 'parseInt(x)+10' -e echo \${x}
+basho 10 -j 'x**2' -e 'echo ${x}' -j 'parseInt(x)+10' -e 'echo ${x}'
 ```
 
 basho can receive input via stdin. As always, ‘x’ represents the input.
@@ -130,14 +145,7 @@ There’s nothing stopping you from piping basho's output either.
 
 ```bash
 # Prints 100
-basho 10 -j x**2 | xargs echo
-```
-
-If the input 'x' has spaces, basho will escape them before executing the shell command.
-
-```bash
-# This translates to cat Untitled\ Document.txt
-basho -q Untitled\ Document.txt -e cat \${x}
+basho 10 -j 'x**2' | xargs echo
 ```
 
 ### Importing JS files
@@ -154,7 +162,7 @@ module.exports = function square(n) { return n ** 2; }
 basho 10 --import square.js sqr -j 'sqr(x)'
 
 # Prints 40000. Does sqr(10), then adds 100, then sqr(200)
-basho 10 --import square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'
+basho 10 --import square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
 ```
 
 ### Arrays, map, filter, flatMap and reduce
@@ -164,41 +172,41 @@ is executed for each item in the array. It's the equivalent of a map() function.
 
 ```bash
 # echo 1; echo 2; echo 3; echo 4
-basho [1,2,3,4] -e echo \${x}
+basho [1,2,3,4] -e 'echo ${x}'
 ```
 
 An input can also be an object, which you can expand in the template string.
 
 ```bash
-basho '{ name: "jes", age: 100 }' -e echo \${x.name}, \${x.age}
+basho '{ name: "jes", age: 100 }' -e 'echo ${x.name}, ${x.age}'
 ```
 
 You can use an Array of objects.
 
 ```bash
 # echo kai; echo niki
-basho '[{name:"kai"}, {name: "niki"}]' -e echo \${x.name}
+basho '[{name:"kai"}, {name: "niki"}]' -e 'echo ${x.name}'
 ```
 
 Array of arrays, sure.
 
 ```bash
 # echo 1 2 3; echo 3 4 5
-basho '[[1,2,3], [3,4,5]]' -e echo \${x[0]} \${x[1]} \${x[2]}
+basho '[[1,2,3], [3,4,5]]' -e 'echo ${x[0]} ${x[1]} ${x[2]}'
 ```
 
 A command can choose to receive the entire array at once with the -a option.
 
 ```bash
 # echo 4
-basho [1,2,3,4] -a x.length -e echo \${x}
+basho [1,2,3,4] -a -j x.length -e 'echo ${x}'
 ```
 
 Filter arrays with the -f option.
 
 ```bash
 # echo 3; echo 4
-basho [1,2,3,4] -f 'x>2' -e echo \${x}
+basho [1,2,3,4] -f 'x>2' -e 'echo ${x}'
 ```
 
 Reduce with the -r option. The first parameter is the lambda, the second
@@ -206,14 +214,14 @@ parameter is the initial value of the accumulator.
 
 ```bash
 # Prints the sum 10
-basho [1,2,3,4] -r acc+x 0 -e echo \${x}
+basho [1,2,3,4] -r 'acc+x' 0 -e 'echo ${x}'
 ```
 
 There's also flatMap, the -m option.
 
 ```bash
 # Returns [11, 21, 12, 22, 13, 23]
-basho [1,2,3] -m [x+10,x+20]
+basho [1,2,3] -m '[x+10,x+20]'
 ```
 
 A flatMap can be used to flatten an array of arrays as well.
@@ -228,7 +236,7 @@ variable ‘i’ in lambdas and shell command templates.
 
 ```bash
 # echo a1; echo b2; echo c3
-basho '["a", "b", "c"]' -e echo \${x}\${i}
+basho '["a", "b", "c"]' -e 'echo ${x}${i}'
 ```
 
 ### Reusable Expressions
@@ -239,14 +247,37 @@ Here's how to use it in JS expressions
 
 ```bash
 # Prints 11, 12, 13
-basho [10, 11, 12] -d add1 'x=>x+1' -j 'k.add1(x)'
+basho [10,11,12] -d add1 'x=>x+1' -j 'k.add1(x)'
 ```
 
 Can be used in shell commands as well. Remember to quote though.
 
 ```bash
 # Same as echo 10; echo 11; echo 12
-basho [10, 11, 12] -d ECHO_CMD '"echo"' -e '\${k.ECHO_CMD} N\${x}'
+basho [10,11,12] -d ECHO_CMD '"echo"' -e '${k.ECHO_CMD} N${x}'
+```
+
+### Subroutines
+
+Subroutines are mini-pipelines within a parent pipeline. This allows us to define a set of operations which could be repeatedly called for each item.
+
+Subroutines are defined with the --sub option followed by the name of the sub. The sub continues till an --endsub is found. The sub is stored for subsequent usage is the variable 'k'.
+
+```bash
+# Multiplies by 200
+basho [10,11,12] --sub multiply 'x*10' -j 'x*20' --endsub -j 'k.multiply(x)'`
+```
+
+Nested Subroutines? Sure.
+
+```bash
+# Nested Subroutines
+basho [10,11,12] \
+  --sub multiply \
+    --sub square 'x*x' --endsub \
+    -j 'x*10' -j 'k.square(x)' \
+  --endsub \
+  -j 'k.multiply(x)'
 ```
 
 ### Named expressions, Seeking and Combining expressions
@@ -296,12 +327,12 @@ the next command in the pipeline.
 
 ```bash
 # Prints 10
-basho 'Promise.resolve(10)' -e echo \${x}
+basho 'Promise.resolve(10)' -e 'echo ${x}'
 
 # Something more useful
 basho --import node-fetch fetch \
  -j 'fetch("http://oaks.nvg.org/basho.html")' \
- -e echo \${x}
+ -e 'echo ${x}'
 ```
 
 ### Logging
@@ -310,14 +341,14 @@ You can add a -l option anywhere in the pipeline to print the current value.
 
 ```bash
 # Logs 10\n
-basho 10 -l x -j x -e echo \${x}
+basho 10 -l x -j x -e 'echo ${x}'
 ```
 
 The -w option does the same thing, but without the newline.
 
 ```bash
 # Logs 10 without a newline
-basho 10 -w x -j x -e echo \${x}
+basho 10 -w x -j x -e 'echo ${x}'
 ```
 
 ### Error Handling
