@@ -246,7 +246,7 @@ describe("basho", () => {
           --sub square 'x*x' --endsub \
           -j 'x*10' -j 'k.square(x)' \
         --endsub \
-        -j 'k.multiply(x)'`     
+        -j 'k.multiply(x)'`
     );
 
     output.should.equal("10000\n12100\n14400\n");
@@ -340,9 +340,8 @@ describe("basho", () => {
     const output = await execute(
       `${basho} [[[0],1]] -j '[x[0].concat(x[1]), x[0].slice(-1)[0] + x[1]]' -n fib -g fib 'x[1]<300' -j x[0]`
     );
-
     output.should.equal(
-      "[ 0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233 ]\n"
+      "[\n    0,   1,  1,  2,  3,  5,\n    8,  13, 21, 34, 55, 89,\n  144, 233\n]\n"
     );
   });
 });
