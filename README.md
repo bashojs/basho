@@ -57,7 +57,7 @@ basho -p 100
 ```
 
 Working with strings will need quoting, since bash will chew the quotes for
-itself. So you’ll need to either use single quotes around your double quotes.
+itself. So you’ll need to use single quotes around your double quotes.
 
 ```bash
 # Prints hello, world
