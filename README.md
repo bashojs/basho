@@ -457,3 +457,9 @@ basho
 
 [Report issues](https://www.github.com/jeswin/basho) or ping me on
 [Twitter](https://www.twitter.com/jeswin).
+
+
+## About
+
+This software has an MIT license. You can freely use it in commercial work under the terms of the license.
+For paid support (or consulting gigs and online corporate training), contact me on jeswinpk@agilehead.com
