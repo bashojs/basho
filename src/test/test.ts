@@ -5,7 +5,7 @@ import child_process = require("child_process");
 import path = require("path");
 import promisify = require("nodefunc-promisify");
 
-function execute(cmd: string): any {
+function execute(cmd: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const child = child_process.exec(cmd, (err: any, result: any) => {
       resolve(result);
@@ -18,7 +18,17 @@ function execute(cmd: string): any {
   });
 }
 
-const basho = `node ${path.resolve("./dist/index.js")}`;
+function spawn(cmd: string, args: string[]): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = child_process.spawn(cmd, args);
+    child.stdin.end();
+    child.stdout.on("data", (data) => resolve(data.toString()));
+  });
+}
+
+const script = path.join(__dirname, "../index.js");
+console.log("script", script);
+const basho = `node ${script}`;
 
 describe("basho", () => {
   it(`Prints a number`, async () => {
@@ -343,5 +353,45 @@ describe("basho", () => {
     output.should.equal(
       "[\n    0,   1,  1,  2,  3,  5,\n    8,  13, 21, 34, 55, 89,\n  144, 233\n]\n"
     );
+  });
+
+  it(`Multi-line args`, async () => {
+    const expression = `
+      -j
+        20
+      -j
+        x === 10 ? 100 : 200
+    `;
+    const output = await spawn("node", [script, expression]);
+    output.should.equal("200\n");
+  });
+
+  it(`Multi-line args with brackets`, async () => {
+    const expression = `
+      -j
+        20
+      -j
+        (
+          x === 10
+            ? 100
+            : 200
+        )
+    `;
+    const output = await spawn("node", [script, expression]);
+    output.should.equal("200\n");
+  });
+
+  it(`Shows an error if bracket is not closed`, async () => {
+    const expression = `
+      -j
+        20
+      -j
+        (
+          x === 10
+            ? 100
+            : 200
+    `;
+    const output = await spawn("node", [script, expression]);
+    output.should.equal("Bracket started after '-j' was not closed.\n");
   });
 });

@@ -32,11 +32,58 @@ if (require.main == module) {
           const bashoArgs = process.argv
             .slice(2)
             .flatMap((x) => x.split("\n"))
-            .map(x => x.trim())
-            .filter((x) => x !== "");
+            .map((x) => x.trim())
+            .filter((x) => x !== "")
+            .reduce(
+              (acc, x) => {
+                if (acc.bracketed) {
+                  if (x === ")") {
+                    return {
+                      args: acc.args,
+                      bracketed: false,
+                      bracketStart: "",
+                    };
+                  } else {
+                    const concatenated = acc.args.slice(-1)[0] + x;
+                    return {
+                      args: acc.args.slice(0, -1).concat(concatenated),
+                      bracketed: true,
+                      bracketStart: acc.bracketStart,
+                    };
+                  }
+                } else {
+                  if (x === "(") {
+                    return {
+                      args: acc.args.concat(""),
+                      bracketed: true,
+                      bracketStart: acc.args.slice(-1)[0],
+                    };
+                  } else {
+                    return {
+                      args: acc.args.concat(x),
+                      bracketed: false,
+                      bracketStart: "",
+                    };
+                  }
+                }
+                return acc;
+              },
+              { args: [], bracketed: false, bracketStart: "" } as {
+                args: string[];
+                bracketed: boolean;
+                bracketStart: string;
+              }
+            );
+
+          if (bashoArgs.bracketed) {
+            console.log(
+              `Bracket started after '${bashoArgs.bracketStart}' was not closed.`
+            );
+            process.exit(1);
+          }
 
           const output = await evaluate(
-            bashoArgs,
+            bashoArgs.args,
             input,
             true,
             (x: string) => console.log(x),

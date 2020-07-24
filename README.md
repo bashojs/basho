@@ -468,6 +468,28 @@ basho "$bashocmd"
 
 Asterisks don't get substituted - if you need substitution, use &lt;&lt;EOF instead of &lt;&lt; "EOF".
 
+### Multi-line with Brackets
+
+For better legibility in multi-line commands, brackets can help. A line containing an opening or closing bracket should contain nothing else, as in the example below. 
+
+```bash
+bashocmd=$(cat <<EOF
+-j
+  100
+-j
+  (
+    x === 100
+      ? x + 20
+      : x + 30
+  )
+EOF
+)
+
+# Prints [ 'Hello', 'world' ]
+# NOTE: Put quotes around the variable!
+basho "$bashocmd"
+```
+
 ## That's it
 
 Typing basho without any parameters does nothing but might make you happy. Or
