@@ -470,7 +470,7 @@ Asterisks don't get substituted - if you need substitution, use &lt;&lt;EOF inst
 
 ### Multi-line with Brackets
 
-For better legibility in multi-line commands, brackets can help. A line containing an opening or closing bracket should contain nothing else, as in the example below. 
+For better legibility in multi-line commands, brackets can help. A line containing an opening or closing bracket should contain nothing else, as in the example below. Brackets cannot be nested. 
 
 ```bash
 bashocmd=$(cat <<EOF

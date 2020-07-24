@@ -66,7 +66,6 @@ if (require.main == module) {
                     };
                   }
                 }
-                return acc;
               },
               { args: [], bracketed: false, bracketStart: "" } as {
                 args: string[];
