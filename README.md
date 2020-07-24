@@ -446,6 +446,23 @@ else
 fi
 ```
 
+## Use Here Documents for complex multi-line commands
+
+See [Documentation for Here Documents](https://tldp.org/LDP/abs/html/here-docs.html)
+
+This syntax hugely simplifies complex commands. Note that the asterisks don't get substituted - there is no need to quote anything! If you need substitution, use &lt;&lt;EOF instead of &lt;&lt; "EOF".
+
+```bash
+bashocmd=$(cat << "EOF"
+-j 100
+-j x+1
+-j x**2
+EOF
+)
+
+basho $bashocmd
+```
+
 ## That's it
 
 Typing basho without any parameters does nothing but might make you happy. Or
@@ -457,7 +474,6 @@ basho
 
 [Report issues](https://www.github.com/jeswin/basho) or ping me on
 [Twitter](https://www.twitter.com/jeswin).
-
 
 ## About
 
