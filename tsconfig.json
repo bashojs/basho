@@ -5,7 +5,7 @@
     "target": "es2015",
     "module": "commonjs",
     "moduleResolution": "node",
-    "lib": ["es2017", "esnext.asynciterable"],
+    "lib": ["ES2020", "esnext.asynciterable"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
     "strict": true,

@@ -448,20 +448,25 @@ fi
 
 ## Use Here Documents for complex multi-line commands
 
-See [Documentation for Here Documents](https://tldp.org/LDP/abs/html/here-docs.html)
+Complex commands require a lot of quoting which makes code ugly. Fortunately, a shell feature called [Here Documents](https://tldp.org/LDP/abs/html/here-docs.html) hugely simplifies this use case. You can pretty much avoid all quoting!
 
-This syntax hugely simplifies complex commands. Note that the asterisks don't get substituted - there is no need to quote anything! If you need substitution, use &lt;&lt;EOF instead of &lt;&lt; "EOF".
+Note that you need to specify each argument in a separate line (which helps readability as well). And when invoking basho, remember to use quotes around the variable (see example below). Indentation is ignored, so you can use it for formatting. 
 
 ```bash
-bashocmd=$(cat << "EOF"
--j 100
--j x+1
--j x**2
+bashocmd=$(cat <<EOF
+-j
+  "Hello world"
+-j
+  x.split(" ")
 EOF
 )
 
-basho $bashocmd
+# Prints [ 'Hello', 'world' ]
+# NOTE: Put quotes around the variable!
+basho "$bashocmd"
 ```
+
+Asterisks don't get substituted - if you need substitution, use &lt;&lt;EOF instead of &lt;&lt; "EOF".
 
 ## That's it
 

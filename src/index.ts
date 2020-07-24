@@ -24,9 +24,19 @@ if (require.main == module) {
           const input = str
             .replace(/\n$/, "")
             .split("\n")
-            .filter(x => x !== "");
+            .filter((x) => x !== "");
+
+          // Some of our args might have newlines.
+          // Especially when using Here Documents.
+          // So we split those into separate args.
+          const bashoArgs = process.argv
+            .slice(2)
+            .flatMap((x) => x.split("\n"))
+            .map(x => x.trim())
+            .filter((x) => x !== "");
+
           const output = await evaluate(
-            process.argv.slice(2),
+            bashoArgs,
             input,
             true,
             (x: string) => console.log(x),
