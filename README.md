@@ -115,7 +115,7 @@ Tip: Single quotes are far easier to work with, since double quotes will try to
 expand \$variables inside it.
 
 ```bash
-# Prints 1000. Escape the $.
+# Prints 1000.
 basho 1000 -e 'echo ${x}'
 ```
 
