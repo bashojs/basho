@@ -497,6 +497,11 @@ EOF
 basho "$bashocmd"
 ```
 
+## Basho Recipes
+
+Basho recipes 
+
+
 ## That's it
 
 Typing basho without any parameters does nothing but might make you happy. Or
