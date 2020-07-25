@@ -239,11 +239,18 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e 'echo ${x}${i}'
 ```
 
-### Reusable Expressions
+### Arguments and Reusable Expressions
 
-Sometimes you want to reuse an expression multiple times in the pipeline. You can define expressions with the -d option and they get stored as fields in a variable named 'k'. See usage below.
+Sometimes you want to pass additional arguments or reuse an expression multiple times in the pipeline. You can define expressions with the -d option and they get stored as fields in a variable named 'k'. See usage below.
 
-Here's how to use it in JS expressions
+Here's how to use the define option to pass arguments
+
+```bash
+# Prints 200
+basho -d divisor 100 -j '20000/k.divisor'
+```
+
+Here's how to use it for reusable expressions.
 
 ```bash
 # Prints 11, 12, 13
