@@ -457,7 +457,7 @@ fi
 
 Complex commands require a lot of quoting which makes code ugly. Fortunately, a shell feature called [Here Documents](https://tldp.org/LDP/abs/html/here-docs.html) hugely simplifies this use case. You can pretty much avoid all quoting!
 
-Note that you need to specify each argument in a separate line (which helps readability as well). And when invoking basho, remember to use quotes around the variable (see example below). Indentation is ignored, so you can use it for formatting. 
+Note that you need to specify each argument in a separate line (which helps readability as well). And when invoking basho, remember to use quotes around the variable (see example below). Indentation is ignored, so you can use it for formatting.
 
 ```bash
 bashocmd=$(cat <<EOF
@@ -477,7 +477,7 @@ Asterisks don't get substituted - if you need substitution, use &lt;&lt;EOF inst
 
 ### Multi-line with Brackets
 
-For better legibility in multi-line commands, brackets can help. A line containing an opening or closing bracket should contain nothing else, as in the example below. Brackets cannot be nested. 
+For better legibility in multi-line commands, brackets can help. A line containing an opening or closing bracket should contain nothing else, as in the example below. Brackets cannot be nested.
 
 ```bash
 bashocmd=$(cat <<EOF
@@ -499,8 +499,8 @@ basho "$bashocmd"
 
 ## Basho Recipes
 
-Basho recipes 
-
+This is work in progress, but you can see more real world examples at https://bashojs.org/recipes.
+To contribute recipes, fork https://github.com/jeswin/basho-recipes and send a pull request.
 
 ## That's it
 
