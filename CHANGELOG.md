@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 4.1.0
+
+- Support brackets in Here Documents
+
+## Version 4.0.0
+
+- Add support for Here Documents
+
 ## Version 3.0.0
 
 - Focus on consistency of rules
