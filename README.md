@@ -1,9 +1,9 @@
 # Basho: Shell Automation with Plain JavaScript
 
-Basho lets you to write complex shell tasks using plain JavaScript without having to dabble with shell scripting.
-But when needed, basho lets you easily integrate shell commands as well.
+Basho lets you to write complex shell tasks using plain JavaScript. 
+It mixes well with shell commands and scripts; so you can choose the best tool for the job.
 
-Install basho first. For now basho only works on _Node v8.0 or above_.
+Install basho first.
 
 ```bash
 npm install -g basho
@@ -453,7 +453,7 @@ else
 fi
 ```
 
-## Use Here Documents for complex multi-line commands
+## Here Documents for complex commands
 
 Complex commands require a lot of quoting which makes code ugly. Fortunately, a shell feature called [Here Documents](https://tldp.org/LDP/abs/html/here-docs.html) hugely simplifies this use case. You can pretty much avoid all quoting!
 
@@ -475,7 +475,7 @@ basho "$bashocmd"
 
 Asterisks don't get substituted - if you need substitution, use &lt;&lt;EOF instead of &lt;&lt; "EOF".
 
-### Multi-line with Brackets
+## Brackets
 
 For better legibility in multi-line commands, brackets can help. A line containing an opening or closing bracket should contain nothing else, as in the example below. Brackets cannot be nested.
 
@@ -500,20 +500,17 @@ basho "$bashocmd"
 ## Basho Recipes
 
 This is work in progress, but you can see more real world examples at https://bashojs.org/recipes.
-To contribute recipes, fork https://github.com/jeswin/basho-recipes and send a pull request.
+To contribute recipes, fork https://github.com/bashojs/basho-recipes and send a pull request.
+
+## About
+
+Basho is developed by [@jeswin](https://www.twitter.com/jeswin) - sponsored by [AgileHead](https://www.agilehead.com).
+This software has an MIT license. You can freely use it in commercial work without restrictions.
 
 ## That's it
 
-Typing basho without any parameters does nothing but might make you happy. Or
-sad.
+Typing basho without any parameters does nothing but might make you happy. Or reflective. This of course, is the original purpose of this app.
 
 ```bash
 basho
 ```
-
-[Report issues](https://www.github.com/jeswin/basho) or ping me on
-[Twitter](https://www.twitter.com/jeswin).
-
-## About
-
-This software has an MIT license. You can freely use it in commercial work under the terms of the license.
