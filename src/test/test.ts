@@ -27,7 +27,6 @@ function spawn(cmd: string, args: string[]): Promise<string> {
 }
 
 const script = path.join(__dirname, "../index.js");
-console.log("script", script);
 const basho = `node ${script}`;
 
 describe("basho", () => {
@@ -159,8 +158,6 @@ describe("basho", () => {
   });
 
   it(`Treats the entire input as a string`, async () => {
-    //const echoCmd = `echo -e `;
-    // console.log(echoCmd);
     const echoProcess = child_process.spawn("echo", [
       "-e",
       '{\n "a": 1,\n "b": 2\n }',
@@ -183,8 +180,6 @@ describe("basho", () => {
   });
 
   it(`Treats the input as json`, async () => {
-    //const echoCmd = `echo -e `;
-    // console.log(echoCmd);
     const echoProcess = child_process.spawn("echo", [
       "-e",
       '{\n "a": 1,\n "b": 2\n }',
