@@ -272,21 +272,21 @@ basho [10,11,12] \
 
 The 'name' option -n gives a name to the result of the expression, so that you can recall it later with the -s (seek) or -c (combine) options.
 
-```
+```bash
 # Prints 121; instead of (120*50) + 1
 basho 10 -j x*10 -j x+20 -n add20 -j x*50 -s add20 -j x+1
 ```
 
 The -s option allows you to seek a named result.
 
-```
+```bash
 # Return [11, 21, 31, 41]
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -s add1
 ```
 
 The -c option allows you to combine/multiplex streams into an sequence of arrays.
 
-```
+```bash
 # Return [11, 13], [21, 23], [31, 33], [41, 43]
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 ```
@@ -297,12 +297,32 @@ The 'goto' option -g allows you to recurse to a previous named expression. It ta
 
 Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
 
-```
+```bash
 # Prints 1025
 basho 25 -j x+100 -n add1 -g add1 'x<1000'
 ```
 
 Recursion is powerful. For instance, along with a promise that sleeps for a specified time, recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
+
+### Multi-line string inputs and JSON Parsing
+
+With the 'string' option --str basho can treat the entire input as a single string with newlines (instead of an array of lines).
+
+```bash
+# Curl returns a JSON. So this prints:
+# {
+#   name: 'Jeswin',
+#   email: 'jeswinpk@agilehead.com',
+#   date: '2020-09-09T03:28:43Z'
+# }
+curl 'https://api.github.com/repos/bashojs/basho/commits?per_page=5' | basho --str 'JSON.parse(x)' -j 'x[0].commit.committer'
+```
+
+If the input is JSON, there's a convenient shortcut so that you don't have to write JSON.parse. The 'json' option --json.
+
+```bash
+curl 'https://api.github.com/repos/bashojs/basho/commits?per_page=5' | basho --json -j 'x[0].commit.committer'
+```
 
 ### Promises!
 
