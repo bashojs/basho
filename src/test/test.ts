@@ -158,6 +158,54 @@ describe("basho", () => {
     output.should.equal("4\n");
   });
 
+  it(`Treats the entire input as a string`, async () => {
+    //const echoCmd = `echo -e `;
+    // console.log(echoCmd);
+    const echoProcess = child_process.spawn("echo", [
+      "-e",
+      '{\n "a": 1,\n "b": 2\n }',
+    ]);
+
+    const bashoProcess = child_process.spawn("node", [
+      script,
+      "--str",
+      "-j",
+      "JSON.parse(x).a",
+    ]);
+
+    echoProcess.stdout.pipe(bashoProcess.stdin);
+
+    const output = await new Promise<string>((resolve) =>
+      bashoProcess.stdout.on("data", (x) => resolve(x.toString()))
+    );
+
+    output.should.equal("1\n");
+  });
+
+  it(`Treats the input as json`, async () => {
+    //const echoCmd = `echo -e `;
+    // console.log(echoCmd);
+    const echoProcess = child_process.spawn("echo", [
+      "-e",
+      '{\n "a": 1,\n "b": 2\n }',
+    ]);
+
+    const bashoProcess = child_process.spawn("node", [
+      script,
+      "--json",
+      "-j",
+      "x.a",
+    ]);
+
+    echoProcess.stdout.pipe(bashoProcess.stdin);
+
+    const output = await new Promise<string>((resolve) =>
+      bashoProcess.stdout.on("data", (x) => resolve(x.toString()))
+    );
+
+    output.should.equal("1\n");
+  });
+
   it(`Filters an array`, async () => {
     const output = await execute(
       `${basho} [1,2,3,4] -f 'x\>2' -e 'echo \${x}'`
