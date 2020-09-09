@@ -150,8 +150,7 @@ basho 10 -j 'x**2' | xargs echo
 
 ### Importing JS files
 
-You can import a function from a JS file or an npm module with the --import option. The --import option takes two parameters; a filename or module name and an alias for
-the import. An import is available in all subsequent expressions throughout the
+You can import a function from a JS file or an npm module with the --import option. The --import option takes two parameters; a filename or module name and an alias for the import. An import is available in all subsequent expressions throughout the
 pipeline.
 
 ```bash
@@ -195,7 +194,7 @@ Array of arrays, sure.
 basho '[[1,2,3], [3,4,5]]' -e 'echo ${x[0]} ${x[1]} ${x[2]}'
 ```
 
-A command can choose to receive the entire array at once with the -a option.
+If the input is an array, basho processes each item one-by-one (like a map() function). But sometimes, you want to process the entire array at once. Use the -a option for this.
 
 ```bash
 # echo 4
