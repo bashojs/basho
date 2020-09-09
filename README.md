@@ -1,7 +1,6 @@
 # Basho: Shell Automation with Plain JavaScript
 
-Basho lets you to write complex shell tasks using plain JavaScript. 
-It mixes well with shell commands and scripts; so you can choose the best tool for the job.
+Basho lets you to write complex shell tasks using plain JavaScript. It mixes well with shell commands and scripts; so you can choose the best tool for the job.
 
 Install basho first.
 
@@ -18,14 +17,9 @@ npx basho -j 100
 
 ### Basics
 
-Basho evaluates a pipeline of instructions left to right. Instructions can be
-JavaScript code, reference to an external JS file, or a shell command. What
-makes basho interesting is
-[Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this
-later.
+Basho evaluates a pipeline of instructions left to right. Instructions can be JavaScript code, reference to an external JS file, or a shell command. What makes basho interesting is [Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this later.
 
-To evaluate a JavaScript expression, use the option -j. Let’s start with a
-single item in the pipeline, a JavaScript constant.
+To evaluate a JavaScript expression, use the 'js' option -j. Let’s start with a single item in the pipeline, a JavaScript constant.
 
 ```bash
 # Prints 100
@@ -48,16 +42,14 @@ basho 100
 basho 10**2
 ```
 
-The option -p avoids printing the final result. I am not sure where you'd need
-to use it, but it's there.
+The option -p avoids printing the final result. I am not sure where you'd need to use it, but it's there.
 
 ```bash
 # Prints nothing
 basho -p 100
 ```
 
-Working with strings will need quoting, since bash will chew the quotes for
-itself. So you’ll need to use single quotes around your double quotes.
+Working with strings will need quoting, since bash will chew the quotes for itself. So you’ll need to use single quotes around your double quotes.
 
 ```bash
 # Prints hello, world
@@ -66,8 +58,7 @@ basho '"hello, world"'
 
 ### Piping Results
 
-You can pipe an expression into a subsequent expression. The variable ‘x’ is
-always used as a placeholder for receiving the previous input.
+You can pipe an expression into a subsequent expression. The variable ‘x’ is always used as a placeholder for receiving the previous input.
 
 ```bash
 # Prints 10100
@@ -76,8 +67,7 @@ basho 100 -j x**2 -j x+100
 
 ### Quoting expressions
 
-If an expression has spaces, it is important to quote it.
-In the following example, see how 'x + 100' is quoted.
+If an expression has spaces, it is important to quote it. In the following example, see how 'x + 100' is quoted.
 
 ```bash
 # Prints 10100
@@ -95,9 +85,7 @@ As a best practice, it is wise to quote all expressions (except maybe the trivia
 
 ### Lazy evaluation and exit conditions
 
-You may choose to terminate the pipeline with the -t option when a condition is
-met. Since the pipeline is lazy, further expressions (or bash commands) are not
-evaluated.
+You may choose to terminate the pipeline with the 'terminate' option -t when a condition is met. Since the pipeline is lazy, further expressions (or bash commands) are not evaluated.
 
 ```bash
 # Prints 10 and 20. The rest are never evaluated.
@@ -106,10 +94,7 @@ basho [1,2,3,4,5] -t 'x>2' -j 'x*10'
 
 ### Shell Commands
 
-Execute shell commands with the -e option. The shell command is expanded as a JS
-template string, with the variable ‘x’ holding the input from the preceding
-command in the pipeline. Remember to quote or escape characters which hold a
-special meaning in your shell, such as \$, >, <, |, () etc.
+Execute shell commands with the 'execute' option -e. The shell command is expanded as a JS template string, with the variable ‘x’ holding the input from the preceding command in the pipeline. Remember to quote or escape characters which hold a special meaning in your shell, such as \$, >, <, |, () etc.
 
 Tip: Single quotes are far easier to work with, since double quotes will try to
 expand \$variables inside it.
@@ -119,8 +104,7 @@ expand \$variables inside it.
 basho 1000 -e 'echo ${x}'
 ```
 
-You can extend the pipeline further after a shell command. The shell command’s
-output becomes the input for the next command.
+You can extend the pipeline further after a shell command. The shell command’s output becomes the input for the next command.
 
 ```bash
 # echo 110 - which is (10^2) + 10
@@ -166,8 +150,7 @@ basho 10 --import square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
 
 ### Arrays, map, filter, flatMap and reduce
 
-If the input to an expression is an array, the subsequent expression or command
-is executed for each item in the array. It's the equivalent of a map() function.
+If the input to an expression is an array, the subsequent expression or command is executed for each item in the array. It's the equivalent of a map() function.
 
 ```bash
 # echo 1; echo 2; echo 3; echo 4
@@ -201,22 +184,21 @@ If the input is an array, basho processes each item one-by-one (like a map() fun
 basho [1,2,3,4] -a -j x.length -e 'echo ${x}'
 ```
 
-Filter arrays with the -f option.
+Filter arrays with the 'filter' option -f.
 
 ```bash
 # echo 3; echo 4
 basho [1,2,3,4] -f 'x>2' -e 'echo ${x}'
 ```
 
-Reduce with the -r option. The first parameter is the lambda, the second
-parameter is the initial value of the accumulator.
+Reduce with the 'reduce' option -r. The first parameter is the lambda, the second parameter is the initial value of the accumulator.
 
 ```bash
 # Prints the sum 10
 basho [1,2,3,4] -r 'acc+x' 0 -e 'echo ${x}'
 ```
 
-There's also flatMap, the -m option.
+There's also the 'flatMap' option -m.
 
 ```bash
 # Returns [11, 21, 12, 22, 13, 23]
@@ -240,7 +222,7 @@ basho '["a", "b", "c"]' -e 'echo ${x}${i}'
 
 ### Arguments and Reusable Expressions
 
-Sometimes you want to pass additional arguments or reuse an expression multiple times in the pipeline. You can define expressions with the -d option and they get stored as fields in a variable named 'k'. See usage below.
+Sometimes you want to pass additional arguments or reuse an expression multiple times in the pipeline. You can define expressions with the 'define' option -d and they get stored as fields in a variable named 'k'. See usage below.
 
 Here's how to use the define option to pass arguments
 
@@ -288,8 +270,7 @@ basho [10,11,12] \
 
 ### Named expressions, Seeking and Combining expressions
 
-The -n option gives a name to the result of the expression, so that you can
-recall it later with the -s (seek) or -c (combine) options.
+The 'name' option -n gives a name to the result of the expression, so that you can recall it later with the -s (seek) or -c (combine) options.
 
 ```
 # Prints 121; instead of (120*50) + 1
@@ -303,8 +284,7 @@ The -s option allows you to seek a named result.
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -s add1
 ```
 
-The -c option allows you to combine/multiplex streams into an sequence of
-arrays.
+The -c option allows you to combine/multiplex streams into an sequence of arrays.
 
 ```
 # Return [11, 13], [21, 23], [31, 33], [41, 43]
@@ -313,8 +293,7 @@ basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 
 ### Recursion
 
-The -g option allows you to recurse to a previous named expression.
-It takes two parameters; (1) an expression name and (2) a predicate which stops the recursion.
+The 'goto' option -g allows you to recurse to a previous named expression. It takes two parameters; (1) an expression name and (2) a predicate which stops the recursion.
 
 Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
 
@@ -323,13 +302,11 @@ Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
 basho 25 -j x+100 -n add1 -g add1 'x<1000'
 ```
 
-Recursion is powerful. For instance, along with a promise that sleeps for a specified time,
-recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
+Recursion is powerful. For instance, along with a promise that sleeps for a specified time, recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
 
 ### Promises!
 
-If an JS expression evaluates to a promise, it is resolved before passing it to
-the next command in the pipeline.
+If an JS expression evaluates to a promise, it is resolved before passing it to the next command in the pipeline.
 
 ```bash
 # Prints 10
@@ -343,14 +320,14 @@ basho --import node-fetch fetch \
 
 ### Logging
 
-You can add a -l option anywhere in the pipeline to print the current value.
+You can add a 'log' option -l anywhere in the pipeline to print the current value. Prints a newline at the end.
 
 ```bash
 # Logs 10\n
 basho 10 -l x -j x -e 'echo ${x}'
 ```
 
-The -w option does the same thing, but without the newline.
+The 'write' option -w does the same thing as -l, but without the newline.
 
 ```bash
 # Logs 10 without a newline
@@ -359,18 +336,13 @@ basho 10 -w x -j x -e 'echo ${x}'
 
 ### Error Handling
 
-You can handle an error with the --error option, and choose to return an
-arbitrary value in its place. If unhandled, the pipeline is terminated
-immediately. In the following example, x.split() results in an exception on the
-second input (10) since a number does have the split() method. The error handler
-expression replaces the exception with the string 'skipped'.
+You can handle an error with the --error option, and choose to return an arbitrary value in its place. If unhandled, the pipeline is terminated immediately. In the following example, x.split() results in an exception on the second input (10) since a number does have the split() method. The error handler expression replaces the exception with the string 'skipped'.
 
 ```bash
 basho '["a,b", 10, "c,d"]' -j 'x.split(",")' --error '"skipped"'
 ```
 
-If the first argument to basho is --ignoreerror, basho will not exit on error.
-It will simply move to the next item.
+If the first argument to basho is --ignoreerror, basho will not exit on error. It will simply move to the next item.
 
 ```bash
 basho --ignoreerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
@@ -382,8 +354,7 @@ The --printerror option works like --ignoreerror, but prints the error.
 basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
 ```
 
-Note that ignoreerror and printerror must not be preceded by any option except
-the --import option.
+Note that ignoreerror and printerror must not be preceded by any option except the --import option.
 
 ## Real world examples
 
@@ -498,13 +469,11 @@ basho "$bashocmd"
 
 ## Basho Recipes
 
-This is work in progress, but you can see more real world examples at https://bashojs.org/recipes.
-To contribute recipes, fork https://github.com/bashojs/basho-recipes and send a pull request.
+This is work in progress, but you can see more real world examples at https://bashojs.org/recipes. To contribute recipes, fork https://github.com/bashojs/basho-recipes and send a pull request.
 
 ## About
 
-Basho is developed by [@jeswin](https://www.twitter.com/jeswin) - sponsored by [AgileHead](https://www.agilehead.com).
-This software has an MIT license. You can freely use it in commercial work without restrictions.
+Basho is developed by [@jeswin](https://www.twitter.com/jeswin) - sponsored by [AgileHead](https://www.agilehead.com). This software has an MIT license. You can freely use it in commercial work without restrictions.
 
 ## That's it
 
