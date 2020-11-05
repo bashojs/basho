@@ -12,10 +12,7 @@
       "stopOnEntry": false,
       "args": ["--no-timeouts", "dist/test/test.js"],
       "cwd": "${workspaceRoot}",
-      "preLaunchTask": "build",
-      "env": {
-        "CHIMPANZEE_DEBUG": "yep"
-      }
+      "preLaunchTask": "build"
     }
   ]
 }
