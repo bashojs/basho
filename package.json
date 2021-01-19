@@ -1,7 +1,11 @@
 {
   "name": "basho",
-  "version": "4.2.2",
-  "author": "Jeswin<jeswinpk@agilehead.com>",
+  "version": "4.2.3",
+  "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bashojs/basho"
+  },
   "scripts": {
     "test": "./build.sh && mocha dist/test/test.js"
   },
@@ -10,7 +14,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "basho-eval": "4.2.1",
+    "basho-eval": "^4.2.2",
     "get-stdin": "8.0.0"
   },
   "devDependencies": {
