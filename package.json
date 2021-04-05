@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "4.2.3",
+  "version": "4.2.4",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "repository": {
     "type": "git",
@@ -14,16 +14,16 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "basho-eval": "^4.2.2",
-    "get-stdin": "8.0.0"
+    "basho-eval": "^4.2.4",
+    "get-stdin": "^8.0.0"
   },
   "devDependencies": {
-    "@types/get-stdin": "7.0.0",
-    "@types/mocha": "8.0.3",
-    "@types/node": "14.14.6",
-    "@types/should": "13.0.0",
-    "mocha": "8.2.1",
-    "should": "13.2.3"
+    "@types/get-stdin": "^7.0.0",
+    "@types/mocha": "^8.2.2",
+    "@types/node": "^14.14.37",
+    "@types/should": "^13.0.0",
+    "mocha": "^8.3.2",
+    "should": "^13.2.3"
   },
   "license": "MIT"
 }
