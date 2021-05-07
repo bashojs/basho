@@ -4,10 +4,27 @@ import "./preload";
 import { evaluate, PipelineValue, PipelineError } from "basho-eval";
 import haikus from "./haikus";
 import * as fs from "fs";
+import { ReadStream } from "tty";
+
+async function read(stream: ReadStream) {
+  const chunks = [];
+  for await (const chunk of stream) chunks.push(chunk);
+  return Buffer.concat(chunks).toString("utf8");
+}
 
 if (require.main == module) {
   if (process.argv.length > 2) {
     (async function run() {
+      const [major, minor, patch] = process.version
+        .substring(1)
+        .split(".")
+        .map(parseInt);
+
+      if (major < 11) {
+        console.log("Basho requires node version >= 11.");
+        process.exit(1);
+      }
+
       //Remove import args from the beginning.
       const firstArgs = (function remove(args: Array<string>): Array<string> {
         return args[0] === "--import" ? remove(args.slice(3)) : args;
@@ -20,7 +37,10 @@ if (require.main == module) {
       } else {
         const printerror = firstArgs[0] === "--printerror";
         const ignoreerror = printerror || firstArgs[0] === "--ignoreerror";
-        const stdinAsString = fs.readFileSync(0, "utf-8");
+
+        const stdinAsString = !process.stdin.isTTY
+          ? await read(process.stdin)
+          : "";
 
         try {
           const input = stdinAsString
