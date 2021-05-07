@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "4.2.6",
+  "version": "4.2.7",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "repository": {
     "type": "git",
@@ -14,7 +14,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "basho-eval": "^4.2.5"
+    "basho-eval": "^4.2.7"
   },
   "devDependencies": {
     "@types/mocha": "^8.2.2",
