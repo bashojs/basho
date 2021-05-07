@@ -5,17 +5,11 @@
     "target": "es2015",
     "module": "commonjs",
     "moduleResolution": "node",
-    "lib": ["ES2020", "esnext.asynciterable"],
+    "lib": ["ES2020"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "strict": true,
-    "typeRoots": ["./node_modules/@types", "./types"],
-    "types": [
-      "node",
-      "get-stdin",
-      "nodefunc-promisify",
-      "basho-eval"
-    ]
+    "strict": true,    
+    "types": ["node"]
   },
   "include": ["./src/**/*"]
 }

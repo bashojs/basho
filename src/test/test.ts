@@ -3,7 +3,6 @@ import "mocha";
 import "should";
 import child_process = require("child_process");
 import path = require("path");
-import promisify = require("nodefunc-promisify");
 
 function execute(cmd: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -260,7 +259,15 @@ describe("basho", () => {
     output.should.equal("10\n20\n");
   });
 
-  it(`Can use a template expression in a JS Expression`, async () => {
+  it(`Can define a reusable expression`, async () => {
+    const output = await execute(
+      `${basho} -d onehundred 100 -j 'k.onehundred'`
+    );
+
+    output.should.equal("100\n");
+  });
+
+  it(`Can use a reusable expression in a JS Expression`, async () => {
     const output = await execute(
       `${basho} '[10,11,12]' -d add1 'x=>x+1' -j 'k.add1(x)'`
     );
@@ -268,7 +275,7 @@ describe("basho", () => {
     output.should.equal("11\n12\n13\n");
   });
 
-  it(`Can use a template expression in a Shell Command`, async () => {
+  it(`Can use a reusable expression in a Shell Command`, async () => {
     const output = await execute(
       `${basho} [10,11,12] -d ECHO_CMD '"echo"' -e '\${k.ECHO_CMD} N\${x}'`
     );
@@ -305,7 +312,7 @@ describe("basho", () => {
     output.should.equal("10000\n12100\n14400\n");
   });
 
-  it(`Creates a named result`, async () => {
+  it(`Creates a named stage`, async () => {
     const output = await execute(
       `${basho} [10,20,30,40] -j x+1 -j x+2 -n add2 -j x+10`
     );
@@ -313,7 +320,7 @@ describe("basho", () => {
     output.should.equal("23\n33\n43\n53\n");
   });
 
-  it(`Combines named results`, async () => {
+  it(`Combines named stages`, async () => {
     const output = await execute(
       `${basho} [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2`
     );
@@ -321,7 +328,7 @@ describe("basho", () => {
     output.should.equal("[ 11, 13 ]\n[ 21, 23 ]\n[ 31, 33 ]\n[ 41, 43 ]\n");
   });
 
-  it(`Seeks named results`, async () => {
+  it(`Seeks named stages`, async () => {
     const output = await execute(
       `${basho} [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -s add1`
     );
