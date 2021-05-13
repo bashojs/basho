@@ -1,6 +1,6 @@
-# Basho: Shell Automation with Plain JavaScript
+# Bashō: Shell Automation with Plain JavaScript
 
-Basho lets you to write complex shell tasks using plain JavaScript. It mixes well with shell commands and scripts; so you can choose the best tool for the job.
+Bashō lets you to write complex shell tasks using plain JavaScript. It mixes well with shell commands and scripts; so you can choose the best tool for the job.
 
 Install basho first.
 
@@ -17,7 +17,7 @@ npx basho -j 100
 
 ### Basics
 
-Basho evaluates a pipeline of instructions left to right. Instructions can be JavaScript code, reference to an external JS file, or a shell command. What makes basho interesting is [Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this later.
+Bashō evaluates a pipeline of instructions left to right. Instructions can be JavaScript code, reference to an external JS file, or a shell command. What makes basho interesting is [Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this later.
 
 To evaluate a JavaScript expression, use the 'js' option -j. Let’s start with a single item in the pipeline, a JavaScript constant.
 
@@ -490,13 +490,13 @@ EOF
 basho "$bashocmd"
 ```
 
-## Basho Recipes
+## Bashō Recipes
 
 This is work in progress, but you can see more real world examples at https://bashojs.org/recipes. To contribute recipes, fork https://github.com/bashojs/basho-recipes and send a pull request.
 
 ## About
 
-Basho is developed by [@jeswin](https://www.twitter.com/jeswin) - sponsored by [AgileHead](https://www.agilehead.com). This software has an MIT license. You can freely use it in commercial work without restrictions.
+Bashō is developed by [@jeswin](https://www.twitter.com/jeswin) - sponsored by [AgileHead](https://www.agilehead.com). This software has an MIT license. You can freely use it in commercial work without restrictions.
 
 ## That's it
 
