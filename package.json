@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "4.2.7",
+  "version": "4.3.0",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
   "repository": {
     "type": "git",
@@ -14,13 +14,13 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "basho-eval": "^4.2.7"
+    "basho-eval": "^4.3.0"
   },
   "devDependencies": {
     "@types/mocha": "^8.2.2",
-    "@types/node": "^15.0.2",
+    "@types/node": "^15.0.3",
     "@types/should": "^13.0.0",
-    "mocha": "^8.3.2",
+    "mocha": "^8.4.0",
     "should": "^13.2.3"
   },
   "license": "MIT"
