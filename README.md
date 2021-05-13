@@ -134,18 +134,21 @@ basho 10 -j 'x**2' | xargs echo
 
 ### Importing JS files
 
-You can import a function from a JS file or an npm module with the --import option. The --import option takes two parameters; a filename or module name and an alias for the import. An import is available in all subsequent expressions throughout the
-pipeline.
+You can require a node module with the -i (or --import) option. The -i option takes two parameters; a module name or filename and an alias for the import. 
+An import is available in all subsequent expressions.
 
 ```bash
+# import a module from the node standard lib.
+basho -i fs fs -j 'fs.readFileSync("/some/path/to/file")'
+
 # cat square.js
 module.exports = function square(n) { return n ** 2; }
 
 # prints 100. Imports square.js as sqr.
-basho 10 --import square.js sqr -j 'sqr(x)'
+basho 10 -i square.js sqr -j 'sqr(x)'
 
 # Prints 40000. Does sqr(10), then adds 100, then sqr(200)
-basho 10 --import square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
+basho 10 -i square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
 ```
 
 ### Arrays, map, filter, flatMap and reduce
@@ -333,7 +336,7 @@ If an JS expression evaluates to a promise, it is resolved before passing it to 
 basho 'Promise.resolve(10)' -e 'echo ${x}'
 
 # Something more useful
-basho --import node-fetch fetch \
+basho -i node-fetch fetch \
  -j 'fetch("http://oaks.nvg.org/basho.html")' \
  -e 'echo ${x}'
 ```
@@ -374,7 +377,7 @@ The --printerror option works like --ignoreerror, but prints the error.
 basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
 ```
 
-Note that ignoreerror and printerror must not be preceded by any option except the --import option.
+Note that ignoreerror and printerror must not be preceded by any option except the -i/--import option.
 
 ## Real world examples
 
@@ -399,13 +402,13 @@ find . | basho -f 'x.endsWith(".ts")' -a x.length
 Get the weather in bangalore
 
 ```bash
-echo '"Bangalore,in"' | basho --import node-fetch fetch 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
+echo '"Bangalore,in"' | basho -i node-fetch fetch 'fetch(`http://api.openweathermap.org/data/2.5/weather?q=${x}&appid=YOURAPIKEY&units=metric`)' -j 'x.json()' -j x.main.temp
 ```
 
 Who wrote Harry Potter and the Philosopher's Stone?
 
 ```bash
-basho --import node-fetch fetch 'fetch("https://www.googleapis.com/books/v1/volumes?q=isbn:0747532699")' -j 'x.json()' -j 'x.items[0].volumeInfo.authors'
+basho -i node-fetch fetch 'fetch("https://www.googleapis.com/books/v1/volumes?q=isbn:0747532699")' -j 'x.json()' -j 'x.items[0].volumeInfo.authors'
 ```
 
 Find all git hosted sub directories which might need a pull
