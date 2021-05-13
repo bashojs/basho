@@ -15,7 +15,7 @@ If you have npm > 5.2.0, you can use the npx command to try basho without instal
 npx basho -j 100
 ```
 
-### Basics
+## Basics
 
 Bashō evaluates a pipeline of instructions left to right. Instructions can be JavaScript code, reference to an external JS file, or a shell command. What makes basho interesting is [Lazy Evaluation](https://en.wikipedia.org/wiki/Lazy_evaluation), more on this later.
 
@@ -56,7 +56,7 @@ Working with strings will need quoting, since bash will chew the quotes for itse
 basho '"hello, world"'
 ```
 
-### Piping Results
+## Piping Results
 
 You can pipe an expression into a subsequent expression. The variable ‘x’ is always used as a placeholder for receiving the previous input.
 
@@ -65,7 +65,7 @@ You can pipe an expression into a subsequent expression. The variable ‘x’ is
 basho 100 -j x**2 -j x+100
 ```
 
-### Quoting expressions
+## Quoting expressions
 
 If an expression has spaces, it is important to quote it. In the following example, see how 'x + 100' is quoted.
 
@@ -83,7 +83,7 @@ basho 100 -j 'x**2' -j 'x>100?1:2'
 
 As a best practice, it is wise to quote all expressions (except maybe the trivially simple).
 
-### Lazy evaluation and exit conditions
+## Lazy evaluation and exit conditions
 
 You may choose to terminate the pipeline with the 'terminate' option -t when a condition is met. Since the pipeline is lazy, further expressions (or bash commands) are not evaluated.
 
@@ -92,7 +92,7 @@ You may choose to terminate the pipeline with the 'terminate' option -t when a c
 basho [1,2,3,4,5] -t 'x>2' -j 'x*10'
 ```
 
-### Shell Commands
+## Shell Commands
 
 Execute shell commands with the 'execute' option -e. The shell command is expanded as a JS template string, with the variable ‘x’ holding the input from the preceding command in the pipeline. Remember to quote or escape characters which hold a special meaning in your shell, such as \$, >, <, |, () etc.
 
@@ -132,7 +132,7 @@ There’s nothing stopping you from piping basho's output either.
 basho 10 -j 'x**2' | xargs echo
 ```
 
-### Importing JS files
+## Importing JS files
 
 You can require a node module with the -i (or --import) option. The -i option takes two parameters; a module name or filename and an alias for the import. 
 An import is available in all subsequent expressions.
@@ -151,7 +151,7 @@ basho 10 -i square.js sqr -j 'sqr(x)'
 basho 10 -i square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
 ```
 
-### Arrays, map, filter, flatMap and reduce
+## Arrays, map, filter, flatMap and reduce
 
 If the input to an expression is an array, the subsequent expression or command is executed for each item in the array. It's the equivalent of a map() function.
 
@@ -223,7 +223,7 @@ variable ‘i’ in lambdas and shell command templates.
 basho '["a", "b", "c"]' -e 'echo ${x}${i}'
 ```
 
-### Arguments and Reusable Expressions
+## Arguments and Reusable Expressions
 
 Sometimes you want to pass additional arguments or reuse an expression multiple times in the pipeline. You can define expressions with the 'define' option -d and they get stored as fields in a variable named 'k'. See usage below.
 
@@ -248,7 +248,7 @@ Can be used in shell commands as well. Remember to quote though.
 basho [10,11,12] -d ECHO_CMD '"echo"' -e '${k.ECHO_CMD} N${x}'
 ```
 
-### Subroutines
+## Subroutines
 
 Subroutines are mini-pipelines within a parent pipeline. This allows us to define a set of operations which could be repeatedly called for each item.
 
@@ -271,7 +271,7 @@ basho [10,11,12] \
   -j 'k.multiply(x)'
 ```
 
-### Named expressions, Seeking and Combining expressions
+## Named expressions, Seeking and Combining expressions
 
 The 'name' option -n gives a name to the result of the expression, so that you can recall it later with the -s (seek) or -c (combine) options.
 
@@ -294,7 +294,7 @@ The -c option allows you to combine/multiplex streams into an sequence of arrays
 basho [10,20,30,40] -j x+1 -n add1 -j x+2 -n add2 -c add1,add2
 ```
 
-### Recursion
+## Recursion
 
 The 'goto' option -g allows you to recurse to a previous named expression. It takes two parameters; (1) an expression name and (2) a predicate which stops the recursion.
 
@@ -307,7 +307,7 @@ basho 25 -j x+100 -n add1 -g add1 'x<1000'
 
 Recursion is powerful. For instance, along with a promise that sleeps for a specified time, recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
 
-### Multi-line string inputs and JSON Parsing
+## Multi-line string inputs and JSON Parsing
 
 With the 'string' option --str basho can treat the entire input as a single string with newlines (instead of an array of lines).
 
@@ -327,7 +327,7 @@ If the input is JSON, there's a convenient shortcut so that you don't have to wr
 curl 'https://api.github.com/repos/bashojs/basho/commits?per_page=5' | basho --json -j 'x[0].commit.committer'
 ```
 
-### Promises!
+## Promises!
 
 If an JS expression evaluates to a promise, it is resolved before passing it to the next command in the pipeline.
 
@@ -341,7 +341,7 @@ basho -i node-fetch fetch \
  -e 'echo ${x}'
 ```
 
-### Logging
+## Logging
 
 You can add a 'log' option -l anywhere in the pipeline to print the current value. Prints a newline at the end.
 
@@ -357,7 +357,7 @@ The 'write' option -w does the same thing as -l, but without the newline.
 basho 10 -w x -j x -e 'echo ${x}'
 ```
 
-### Error Handling
+## Error Handling
 
 You can handle an error with the --error option, and choose to return an arbitrary value in its place. If unhandled, the pipeline is terminated immediately. In the following example, x.split() results in an exception on the second input (10) since a number does have the split() method. The error handler expression replaces the exception with the string 'skipped'.
 
