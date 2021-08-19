@@ -2,14 +2,14 @@
   "compilerOptions": {
     "outDir": "./dist",
     "allowJs": false,
-    "target": "es2015",
-    "module": "commonjs",
+    "target": "ES2018",
+    "module": "ESNext",
+    "declaration": true,
     "moduleResolution": "node",
-    "lib": ["ES2020"],
     "allowSyntheticDefaultImports": true,
     "sourceMap": true,
-    "strict": true,    
-    "types": ["node"]
+    "strict": true,
+    "resolveJsonModule": true
   },
   "include": ["./src/**/*"]
 }

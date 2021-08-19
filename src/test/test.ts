@@ -1,8 +1,14 @@
-import "../preload";
+import "../preload.js";
 import "mocha";
 import "should";
-import child_process = require("child_process");
-import path = require("path");
+import child_process from "child_process";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+import * as fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 function execute(cmd: string): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -101,14 +107,14 @@ describe("basho", () => {
 
   it(`Imports a file`, async () => {
     const output = await execute(
-      `${basho} 10 --import ./dist/test/square.js sqr -j 'sqr(x)'`
+      `${basho} 10 --import ./dist/test/square.cjs sqr -j 'sqr(x)'`
     );
     output.should.equal("100\n");
   });
 
   it(`Imports a file (shell), reuse import multiple times`, async () => {
     const output = await execute(
-      `${basho} 10 --import ./dist/test/square.js sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
+      `${basho} 10 --import ./dist/test/square.cjs sqr -j 'sqr(x)' -j x+100 -j 'sqr(x)'`
     );
     output.should.equal("40000\n");
   });
@@ -363,13 +369,15 @@ describe("basho", () => {
   });
 
   it(`Prints the correct version with -v`, async () => {
-    const packageJSON = require("../../package.json");
+    const pkg = path.join(__dirname, "../../package.json");
+    const packageJSON = JSON.parse(fs.readFileSync(pkg, "utf8"));
     const output = await execute(`${basho} "-v"`);
     output.should.equal(`${packageJSON.version}\n`);
   });
 
   it(`Prints the correct version with --version`, async () => {
-    const packageJSON = require("../../package.json");
+    const pkg = path.join(__dirname, "../../package.json");
+    const packageJSON = JSON.parse(fs.readFileSync(pkg, "utf8"));
     const output = await execute(`${basho} "--version"`);
     output.should.equal(`${packageJSON.version}\n`);
   });

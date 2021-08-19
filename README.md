@@ -151,6 +151,21 @@ basho 10 -i square.js sqr -j 'sqr(x)'
 basho 10 -i square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
 ```
 
+The -i option imports the default export from a file or module. If you want to use a named export, use the --named-import option.
+
+Imagine you have the following file.
+
+```bash
+# cat square.js
+export function squareit(n) { return n ** 2; }
+```
+
+Since it's not the default export, you'll need to use --named-import.
+
+```bash
+basho -i square.js squareit sqr -j 'sqr(x)'
+```
+
 ## Arrays, map, filter, flatMap and reduce
 
 If the input to an expression is an array, the subsequent expression or command is executed for each item in the array. It's the equivalent of a map() function.
