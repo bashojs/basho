@@ -153,7 +153,7 @@ basho 10 -i square.js sqr -j 'sqr(x)' -j 'x+100' -j 'sqr(x)'
 
 The -i option imports the default export from a file or module. If you want to use a named export, use the --named-import option.
 
-Imagine you have the following file.
+Let's say you have the following file.
 
 ```bash
 # cat square.js
