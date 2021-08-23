@@ -342,7 +342,7 @@ If the input is JSON, there's a convenient shortcut so that you don't have to wr
 curl 'https://api.github.com/repos/bashojs/basho/commits?per_page=5' | basho --json -j 'x[0].commit.committer'
 ```
 
-Similarly, you could pass a yaml input with the --yaml option, and --toml with the --toml option.
+Similarly, you could pass a yaml input with the --yaml option, and toml with the --toml option.
 
 ```bash
 # YAML
