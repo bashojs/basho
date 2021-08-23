@@ -206,6 +206,28 @@ describe("basho", () => {
     output.should.equal("1\n");
   });
 
+  it(`Treats the input as yaml`, async () => {
+    const echoProcess = child_process.spawn("echo", [
+      "-e",
+      '---\na:\n  b: hello\n',
+    ]);
+
+    const bashoProcess = child_process.spawn("node", [
+      script,
+      "--yaml",
+      "-j",
+      "x.a.b",
+    ]);
+
+    echoProcess.stdout.pipe(bashoProcess.stdin);
+
+    const output = await new Promise<string>((resolve) =>
+      bashoProcess.stdout.on("data", (x) => resolve(x.toString()))
+    );
+
+    output.should.equal("hello\n");
+  });
+
   it(`Filters an array`, async () => {
     const output = await execute(
       `${basho} [1,2,3,4] -f 'x\>2' -e 'echo \${x}'`
