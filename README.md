@@ -322,7 +322,7 @@ basho 25 -j x+100 -n add1 -g add1 'x<1000'
 
 Recursion is powerful. For instance, along with a promise that sleeps for a specified time, recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
 
-## Multi-line string inputs and JSON Parsing
+## Multi-line string inputs and JSON, YAML and TOML Parsing
 
 With the 'string' option --str basho can treat the entire input as a single string with newlines (instead of an array of lines).
 
@@ -340,6 +340,16 @@ If the input is JSON, there's a convenient shortcut so that you don't have to wr
 
 ```bash
 curl 'https://api.github.com/repos/bashojs/basho/commits?per_page=5' | basho --json -j 'x[0].commit.committer'
+```
+
+Similarly, you could pass a yaml input with the --yaml option, and --toml with the --toml option.
+
+```bash
+# YAML
+cat deployment.yaml | basho --yaml -j x.apiVersion
+
+# TOML
+cat cargo.toml | basho --toml -j x.package.name
 ```
 
 ## Promises!
