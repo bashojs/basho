@@ -2,13 +2,13 @@
 
 Bashō lets you to write complex shell tasks using plain JavaScript. It mixes well with shell commands and scripts; so you can choose the best tool for the job.
 
-Install basho first.
+Install basho first. Bashō requires node 14 or above.
 
 ```bash
 npm install -g basho
 ```
 
-If you have npm > 5.2.0, you can use the npx command to try basho without installing.
+You can use the npx command to try basho without installing.
 
 ```bash
 # For example, Prints 100
