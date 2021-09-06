@@ -42,7 +42,7 @@ basho 100
 basho 10**2
 ```
 
-The option -p avoids printing the final result. This is not often used, but you might want to use it along with the error() function defined later; to validate inputs and throw an error if invalid.
+The option -p avoids printing the final result. This is rarely used, but it is sometimes useful along with the error() function described later.
 
 ```bash
 # Prints nothing
@@ -404,10 +404,11 @@ basho --printerror '["a,b", 10, "c,d"]' -j 'x.split(",")'
 
 Note that ignoreerror and printerror must not be preceded by any option except the -i/--import option.
 
-You can throw an error with the error function.
+You can throw an error with the error() function. 
+This is often used along with `set -e` in bash; you could use the error() function to stop the script execution if a validation fails.
 
 ```bash
-echo 100 | basho -j 'x > 10 ? error("Too much") : x'
+echo $AMOUNT | basho -j 'x > 10 ? error("Too much") : x'
 ```
 
 ## Real world examples
