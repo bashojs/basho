@@ -352,6 +352,8 @@ cat deployment.yaml | basho --yaml -j x.apiVersion
 cat cargo.toml | basho --toml -j x.package.name
 ```
 
+Also see yaml() and toml() builtin functions which are available in your expressions.
+
 ## Promises!
 
 If an JS expression evaluates to a promise, it is resolved before passing it to the next command in the pipeline.
@@ -365,6 +367,8 @@ basho -i node-fetch fetch \
  -j 'fetch("http://oaks.nvg.org/basho.html")' \
  -e 'echo ${x}'
 ```
+
+Btw, fetch() is also available as a built-in and usable without importing "node-fetch". See Built-in functions. 
 
 ## Logging
 
@@ -409,6 +413,22 @@ This is often used along with `set -e` in bash; you could use the error() functi
 
 ```bash
 echo $AMOUNT | basho -j 'x > 10 ? error("Too much") : x'
+```
+
+## Built-in functions
+
+There are a few built-in functions which ship with basho, so that you don't have to install and import external libraries.
+These are available under k.lib as k.lib.yaml(), k.lib.toml() and k.lib.fetch().
+
+```bash
+# Prints the name property in parsed yaml
+cat some.yaml | basho -j 'k.lib.yaml(x)' -j x.name
+
+# Prints the name property in parsed toml
+cat some.yaml | basho -j 'k.lib.toml(x)' -j x.name
+
+# Fetches data from a url
+basho -j 'k.lib.fetch("http://oaks.nvg.org/basho.html")' -e 'echo ${x}'
 ```
 
 ## Real world examples
