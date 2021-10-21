@@ -1,6 +1,6 @@
 {
   "name": "basho",
-  "version": "7.2.0",
+  "version": "7.2.1",
   "main": "dist/index.js",
   "type": "module",
   "author": "Jeswin Kumar<jeswinpk@agilehead.com>",
@@ -17,7 +17,7 @@
     "basho": "dist/index.js"
   },
   "dependencies": {
-    "basho-eval": "^7.1.1"
+    "basho-eval": "^7.2.1"
   },
   "devDependencies": {
     "@types/mocha": "^9.0.0",
