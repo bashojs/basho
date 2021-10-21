@@ -417,16 +417,33 @@ echo $AMOUNT | basho -j 'x > 10 ? error("Too much") : x'
 
 ## Built-in functions
 
-There are a few built-in functions which ship with basho, so that you don't have to install and import external libraries.
-These are available under k.lib as k.lib.yaml(), k.lib.toml() and k.lib.fetch().
+There are a few built-in functions which ship with basho so that you don't have to install and import external libraries.
+These are available under k.lib as follows.
+
+The yaml() function reads a yaml string:
 
 ```bash
 # Prints the name property in parsed yaml
 cat some.yaml | basho -j 'k.lib.yaml(x)' -j x.name
+```
 
+The toYaml() function converts an object to a yaml string:
+
+```bash
+# Prints object as a formatted yaml string.
+basho '{ a: 10, b: 20 }' -j 'k.lib.toYaml(x)'
+```
+
+The toml() function parses a toml string:
+
+```bash
 # Prints the name property in parsed toml
-cat some.yaml | basho -j 'k.lib.toml(x)' -j x.name
+cat some.toml | basho -j 'k.lib.toml(x)' -j x.name
+```
 
+The fetch() function can be used to make HTTP requests.
+
+```bash
 # Fetches data from a url
 basho -j 'k.lib.fetch("http://oaks.nvg.org/basho.html")' -e 'echo ${x}'
 ```
