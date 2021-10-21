@@ -12,10 +12,12 @@ import path from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-async function read(stream: ReadStream) {
+async function read(stream: ReadStream): Promise<string | undefined> {
   const chunks = [];
-  for await (const chunk of stream) chunks.push(chunk);
-  return Buffer.concat(chunks).toString("utf8");
+  for await (const chunk of stream) {
+    chunks.push(chunk);
+  }
+  return chunks.length ? Buffer.concat(chunks).toString("utf8") : undefined;
 }
 
 if (process.argv.length > 2) {
@@ -46,13 +48,13 @@ if (process.argv.length > 2) {
 
       const stdinAsString = !process.stdin.isTTY
         ? await read(process.stdin)
-        : "";
+        : undefined;
 
       try {
-        const input = stdinAsString
-          .replace(/\n$/, "")
-          .split("\n")
-          .filter((x) => x !== "");
+        const input =
+          stdinAsString !== undefined
+            ? stdinAsString.replace(/\n$/, "").split("\n")
+            : [];
 
         // Some of our args might have newlines.
         // Especially when using Here Documents.
