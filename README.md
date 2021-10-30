@@ -193,7 +193,7 @@ Using node-fetch
 
 ```bash
 # Fetches data from a url
-basho -i node-fetch fetch -j 'fetch("http://oaks.nvg.org/basho.html")' -e 'echo ${x}'
+basho -i node-fetch fetch -j 'fetch("http://oaks.nvg.org/basho.html")' -j 'x.status'
 ```
 
 
