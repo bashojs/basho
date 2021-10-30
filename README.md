@@ -171,9 +171,11 @@ basho -i square.js squareit sqr -j 'sqr(x)'
 Basho bundles a few modules for convenience, so that you can import them without having to install via npm.
 
 These modules are currently bundled. For detailed usage, check their documentation.
-- [js-yaml](https://github.com/nodeca/js-yaml)
-- [toml](https://github.com/BinaryMuse/toml-node)
-- [node-fetch](https://github.com/node-fetch/node-fetch)
+
+1. [js-yaml](https://github.com/nodeca/js-yaml)
+2. [toml](https://github.com/BinaryMuse/toml-node)
+3. [node-fetch](https://github.com/node-fetch/node-fetch)
+
 
 Using js-yaml:
 
