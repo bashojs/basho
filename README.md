@@ -166,6 +166,37 @@ Since it's not the default export, you'll need to use --named-import.
 basho -i square.js squareit sqr -j 'sqr(x)'
 ```
 
+## Bundled modules
+
+Basho bundles a few modules for convenience, so that you can import them without having to install via npm.
+
+These modules are currently bundled. For detailed usage, check their documentation.
+- [js-yaml](https://github.com/nodeca/js-yaml)
+- [toml](https://github.com/BinaryMuse/toml-node)
+- [node-fetch](https://github.com/node-fetch/node-fetch)
+
+Using js-yaml:
+
+```bash
+# Prints the name property in parsed yaml
+cat some.yaml | basho -i js-yaml yaml -j 'yaml.load(x)' -j x.name
+```
+
+Using toml:
+
+```bash
+# Prints the name property in parsed toml
+cat some.toml | basho -i toml toml -j 'toml.parse(x)' -j x.name
+```
+
+Using node-fetch
+
+```bash
+# Fetches data from a url
+basho -i node-fetch fetch -j 'fetch("http://oaks.nvg.org/basho.html")' -e 'echo ${x}'
+```
+
+
 ## Arrays, map, filter, flatMap and reduce
 
 If the input to an expression is an array, the subsequent expression or command is executed for each item in the array. It's the equivalent of a map() function.
@@ -352,8 +383,6 @@ cat deployment.yaml | basho --yaml -j x.apiVersion
 cat cargo.toml | basho --toml -j x.package.name
 ```
 
-Also see yaml() and toml() builtin functions which are available in your expressions.
-
 ## Promises!
 
 If an JS expression evaluates to a promise, it is resolved before passing it to the next command in the pipeline.
@@ -413,39 +442,6 @@ This is often used along with `set -e` in bash; you could use the error() functi
 
 ```bash
 echo $AMOUNT | basho -j 'x > 10 ? error("Too much") : x'
-```
-
-## Built-in functions
-
-There are a few built-in functions which ship with basho so that you don't have to install and import external libraries.
-These are available under k.lib as follows.
-
-The yaml() function reads a yaml string:
-
-```bash
-# Prints the name property in parsed yaml
-cat some.yaml | basho -j 'k.lib.yaml(x)' -j x.name
-```
-
-The toYaml() function converts an object to a yaml string:
-
-```bash
-# Prints object as a formatted yaml string.
-basho '{ a: 10, b: 20 }' -j 'k.lib.toYaml(x)'
-```
-
-The toml() function parses a toml string:
-
-```bash
-# Prints the name property in parsed toml
-cat some.toml | basho -j 'k.lib.toml(x)' -j x.name
-```
-
-The fetch() function can be used to make HTTP requests.
-
-```bash
-# Fetches data from a url
-basho -j 'k.lib.fetch("http://oaks.nvg.org/basho.html")' -e 'echo ${x}'
 ```
 
 ## Real world examples
