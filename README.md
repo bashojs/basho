@@ -179,14 +179,14 @@ Using js-yaml:
 
 ```bash
 # Prints the name property in parsed yaml
-cat some.yaml | basho -i js-yaml yaml -j 'yaml.load(x)' -j x.name
+cat some.yaml | basho --str -i js-yaml yaml -j 'yaml.load(x)' -j x.name
 ```
 
 Using toml:
 
 ```bash
 # Prints the name property in parsed toml
-cat some.toml | basho -i toml toml -j 'toml.parse(x)' -j x.name
+cat some.toml | basho --str -i toml toml -j 'toml.parse(x)' -j x.name
 ```
 
 Using node-fetch
