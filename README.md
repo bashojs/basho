@@ -563,8 +563,6 @@ This is work in progress, but you can see more real world examples at https://ba
 
 Bashō is developed by [@jeswin](https://www.twitter.com/jeswin) - sponsored by [AgileHead](https://www.agilehead.com). This software has an MIT license. You can freely use it in commercial work without restrictions.
 
-## That's it
-
 Typing basho without any parameters does nothing but might make you happy. Or reflective. This of course, is the original purpose of this app.
 
 ```bash
