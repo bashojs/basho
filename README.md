@@ -353,8 +353,6 @@ Here's an expression that keeps recursing and adding 100 till it exceeds 1000.
 basho 25 -j x+100 -n add1 -g add1 'x<1000'
 ```
 
-Recursion is powerful. For instance, along with a promise that sleeps for a specified time, recursion can use used to periodically run a command. Usage is left to the reader as an exercise.
-
 ## Multi-line string inputs and JSON, YAML and TOML Parsing
 
 With the 'string' option --str basho can treat the entire input as a single string with newlines (instead of an array of lines).
